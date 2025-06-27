@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 from collections import deque
-from cube import *
+from cube import Cube
 
 
 MAX_MEMORY = 100_000
@@ -38,7 +38,7 @@ def train():
     total_score = 0
     record = 0
     agent = Agent()
-    cube = None
+    cube = Cube()
 
     while True:
         # get old states
