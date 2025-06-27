@@ -1,4 +1,11 @@
 # Fridrich Method using Reinforcement Learning
-This project aims to train a neural network to learn how to solve the rubik's cube using the Fridrich Method (also known as CFOP).
+This project aims to train a neural network to learn how to solve the rubik's cube using the Fridrich Method (also known as CFOP) and other techniques.
 
-# How to use
+# Setup environment
+```bash
+
+```
+ 
+# Project details
+## Layer by Layer (LBL)
+## Fridrich Method (CFOP)
