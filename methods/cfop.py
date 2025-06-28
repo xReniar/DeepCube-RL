@@ -37,7 +37,7 @@ class CFOP(Method):
 
     def PLL(self) -> int:
         '''
-        Checks if OLL step is done
+        Checks if PLL step is done
         '''
         faces = self.cube_faces()
 
