@@ -25,8 +25,22 @@ class LBL(Method):
     def first_layer(self) -> int:
         faces = self.cube_faces()
 
+        piece_1 = (faces["front"][8] == faces["front"][4]) and (faces["right"][6] == faces["right"][4])
+        piece_2 = (faces["right"][8] == faces["right"][4]) and (faces["back"][6] == faces["back"][4])
+        piece_3 = (faces["back"][8] == faces["back"][4]) and (faces["left"][6] == faces["left"][4])
+        piece_4 = (faces["left"][8] == faces["left"][4]) and (faces["front"][6] == faces["front"][4])
+
+        return piece_1 + piece_2 + piece_3 + piece_4
+
     def second_layer(self) -> int:
         faces = self.cube_faces()
+
+        piece_1 = (faces["front"][5] == faces["front"][4]) and (faces["right"][3] == faces["right"][4])
+        piece_2 = (faces["right"][5] == faces["right"][4]) and (faces["back"][3] == faces["back"][4])
+        piece_3 = (faces["back"][5] == faces["back"][4]) and (faces["left"][3] == faces["left"][4])
+        piece_4 = (faces["left"][5] == faces["left"][4]) and (faces["front"][3] == faces["front"][4])
+
+        return piece_1 + piece_2 + piece_3 + piece_4
 
     def top_cross(self) -> int:
         faces = self.cube_faces()
