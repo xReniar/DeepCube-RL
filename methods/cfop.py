@@ -28,12 +28,25 @@ class CFOP(Method):
         faces = self.cube_faces()
 
     def OLL(self) -> int:
+        '''
+        Checks if OLL step is done
+        '''
         faces = self.cube_faces()
 
         return int(all(c == "U" for c in faces["top"]))
 
     def PLL(self) -> int:
-        pass
+        '''
+        Checks if OLL step is done
+        '''
+        faces = self.cube_faces()
+
+        front = int(all(c == "F") for c in faces["front"][:3])
+        right = int(all(c == "R") for c in faces["right"][:3])
+        back = int(all(c == "B") for c in faces["back"][:3])
+        left = int(all(c == "L") for c in faces["left"][:3])
+
+        return all([front, right, back, left])
         
     def cube_status(self) -> int:
         return self.cross() + self.F2L() + self.OLL() + self.PLL()
