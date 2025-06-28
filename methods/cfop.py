@@ -27,6 +27,15 @@ class CFOP(Method):
     def F2L(self) -> int:
         faces = self.cube_faces()
 
+        sides = ["front", "right", "back", "left"]
+        status = 0
+        for (l_side, r_side) in list(zip(sides, sides[1:] + sides[:1])):
+            corner = (faces[l_side][8] == faces[l_side][4]) and (faces[r_side][6] == faces[r_side][4])
+            edge = (faces[l_side][5] == faces[l_side][4]) and (faces[r_side][3] == faces[r_side][4])
+
+            status += int(all([corner, edge]))
+
+
     def OLL(self) -> int:
         '''
         Checks if OLL step is done
