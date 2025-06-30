@@ -43,13 +43,13 @@ class CubeGraph():
     def __add_edges(
         self,
         edge: tuple,
-        sources: list,
+        source: list,
         target: list
     ) -> None:
         s, t = edge
-        sources.append(s)
+        source.append(s)
         target.append(t)
-        sources.append(t)
+        source.append(t)
         target.append(s)
 
     def get_edges(self) -> torch.Tensor:
@@ -90,6 +90,23 @@ class CubeGraph():
         for i in range(20, 27, 3):
             self.__add_edges((i, i + 7), source, target)      # L to F
             self.__add_edges((i + 9, i + 16), source, target) # F to R
+
+        # lateral edges
+        for i in range(0, 3):
+            self.__add_edges((i + 36, 17 - (i * 3)), source, target) # U to R
+            self.__add_edges((i + 42, 47 + (i * 3)), source, target) # D to R
+            self.__add_edges((i + 24, 51 - (i * 3)), source, target) # L to D
+            self.__add_edges((i + 18, 9 + (i * 3)), source, target)  # L to U
+
+            # extra case
+            self.__add_edges((i, i + 51), source, target) # B to D
+
+        # back edges
+        for i in range(0, 7, 3):
+            self.__add_edges((i, 24 - i), source, target)     # L to B
+            self.__add_edges((i + 2, 44 - i), source, target) # B to R
+            self.__add_edges((i, i + 18), source, target) 
+            
 
         return torch.tensor([source, target], dtype=torch.long)
 
