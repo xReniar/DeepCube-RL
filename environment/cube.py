@@ -1,5 +1,4 @@
 from magiccube import cube
-from .cube_graph import CubeGraph
 import torch
 
 
@@ -9,10 +8,16 @@ class Cube:
         state: str = None
     ) -> None:
         self.cube = cube.Cube(state)
-        self.cube
 
     def graph_state(self) -> torch.Tensor:
-        pass
+        faces = {
+            "U": [],
+            "D": [],
+            "F": [],
+            "R": [],
+            "B": [],
+            "L": []
+        }
 
     def rotate(
         self,
