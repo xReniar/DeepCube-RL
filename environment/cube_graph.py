@@ -1,5 +1,4 @@
 import torch
-from magiccube import cube
 
 
 class Face():
@@ -33,12 +32,9 @@ class CubeGraph():
 
         for side in ["B", "U", "L", "F", "R", "D"]:
             for f in self.faces[side].facelet:
-                nodes.append([f])
+                nodes.append([ord(f) - 66])
 
-        return torch.tensor(
-            data = nodes,
-            dtype = torch.float
-        )
+        return torch.tensor(data = nodes, dtype = torch.float)
     
     def __add_edges(
         self,
@@ -105,7 +101,6 @@ class CubeGraph():
         for i in range(0, 7, 3):
             self.__add_edges((i, 24 - i), source, target)     # L to B
             self.__add_edges((i + 2, 44 - i), source, target) # B to R
-            self.__add_edges((i, i + 18), source, target) 
             
 
         return torch.tensor([source, target], dtype=torch.long)
@@ -114,13 +109,3 @@ class CubeGraph():
         self
     ) -> tuple[torch.Tensor, torch.Tensor]:
         return (self.get_nodes(), self.get_edges())
-    
-
-obj = cube.Cube()
-positions = obj.get_kociemba_facelet_positions()
-faces = []
-for i in range(0, 6):
-    faces.append(positions[9*i: 9 + 9*i])
-
-cGraph = CubeGraph(faces)
-print(cGraph.get_edges())
