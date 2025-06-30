@@ -24,7 +24,7 @@ class CubeGraph():
             "D": Face(faces[0], 45),
             "F": Face(faces[5], 27),
             "R": Face(faces[1], 36),
-            "B": Face(faces[2], 0),
+            "B": Face(faces[2][::-1], 0),
             "L": Face(faces[4], 18)
         }
 
@@ -39,14 +39,26 @@ class CubeGraph():
             data = nodes,
             dtype = torch.float
         )
+    
+    def __add_edges(
+        self,
+        edge: tuple,
+        sources: list,
+        target: list
+    ) -> None:
+        s, t = edge
+        sources.append(s)
+        target.append(t)
+        sources.append(t)
+        target.append(s)
 
     def get_edges(self) -> torch.Tensor:
         source = []
         target = []
 
+        # adding face edges
         for side in ["B", "U", "L", "F", "R", "D"]:
             index_facelet = self.faces[side].index_facelet
-
             grid = [index_facelet[i:i+3] for i in range(0, len(index_facelet), 3)]
 
             rows = len(grid)
@@ -68,9 +80,16 @@ class CubeGraph():
                 source.append(s)
                 target.append(t)
 
-        for side in ["B", "U", "L", "F", "R", "D"]:
-            facelet = self.faces[side].facelet
-            index_facelet = self.faces[side].index_facelet
+        # vertical edges
+        for i in range(6, 9):
+            self.__add_edges((i, i + 3), source, target)       # B to U
+            self.__add_edges((i + 9, i + 21), source, target)  # U to F
+            self.__add_edges((i + 27, i + 39), source, target) # F to D
+
+        # horizontal edges
+        for i in range(20, 27, 3):
+            self.__add_edges((i, i + 7), source, target)      # L to F
+            self.__add_edges((i + 9, i + 16), source, target) # F to R
 
         return torch.tensor([source, target], dtype=torch.long)
 
