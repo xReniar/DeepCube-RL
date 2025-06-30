@@ -19,13 +19,10 @@ data = Data(x=cGraph.get_nodes(), edge_index=cGraph.get_edges())
 
 G = to_networkx(data, to_undirected=True)
 
-pos = nx.spring_layout(G, dim=3, seed=42)  # layout tridimensionale
-
-# Estrai coordinate x, y, z dei nodi
+pos = nx.spring_layout(G, dim=3, seed=42)
 xyz = np.array([pos[i] for i in range(len(pos))])
 x_nodes, y_nodes, z_nodes = xyz[:,0], xyz[:,1], xyz[:,2]
 
-# 4. Costruisci gli edge
 edge_x = []
 edge_y = []
 edge_z = []
@@ -37,7 +34,7 @@ for edge in G.edges():
     edge_y += [y0, y1, None]
     edge_z += [z0, z1, None]
 
-# 5. Plotly: tracce per nodi e archi
+
 edge_trace = go.Scatter3d(
     x=edge_x, y=edge_y, z=edge_z,
     mode='lines',
@@ -54,7 +51,6 @@ node_trace = go.Scatter3d(
     hoverinfo='text'
 )
 
-# 6. Visualizza
 fig = go.Figure(data=[edge_trace, node_trace],
                 layout=go.Layout(
                     title='Grafo 3D',
