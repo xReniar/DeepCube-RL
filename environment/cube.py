@@ -1,4 +1,4 @@
-from magiccube import cube
+import magiccube
 from .cube_graph import CubeGraph
 import torch
 
@@ -8,10 +8,13 @@ class Cube:
         self,
         state: str = None
     ) -> None:
-        self.__cube = cube.Cube(state)
+        self.cube = magiccube.Cube(
+            size = 3,
+            state = state
+        )
 
     def graph_state(self) -> tuple[torch.Tensor, torch.Tensor]:
-        positions = self.__cube.get_kociemba_facelet_positions()
+        positions = self.cube.get_kociemba_facelet_positions()
         faces = []
         for i in range(0, 6):
             faces.append(positions[9*i: 9 + 9*i])
@@ -24,6 +27,6 @@ class Cube:
         self,
         moves: str
     ) -> None:
-        self.__cube.rotate(moves)
+        self.cube.rotate(moves)
 
     
