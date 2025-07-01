@@ -1,5 +1,5 @@
-from cube import Cube
-from cube_graph import CubeGraph
+from .cube import Cube
+from .cube_graph import CubeGraph
 
 
 __all__ = [
