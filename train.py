@@ -11,7 +11,7 @@ print(cube.get_kociemba_facelet_positions())
 
 
 if __name__ == "__main__":
-    env = Environment()
+    env = Environment(method="CFOP")
     env.scramble()
     
     model = create_agent("DQN")
