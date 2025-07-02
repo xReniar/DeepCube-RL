@@ -1,3 +1,4 @@
+from .algorithm import Algorithm, init_algo
 import magiccube
 import random
 
@@ -14,7 +15,7 @@ class Environment:
             size = 3,
             state = state
         )
-        self.method: str = method
+        self.algorithm: Algorithm = init_algo(method)
         self.start_state: str = self.cube.get_kociemba_facelet_positions()
         self.state: str = self.start_state
 
@@ -26,6 +27,9 @@ class Environment:
         return self.state
     
     def is_terminated(self) -> bool:
+        '''
+        Checks if all the facelets of the same color are in the same face
+        '''
         positions = self.cube.get_kociemba_facelet_positions()
         faces = []
         for i in range(0, 6):
@@ -41,6 +45,9 @@ class Environment:
         return top and right and front and bottom and left and back
     
     def scramble(self) -> None:
+        '''
+        Scrambles the cube
+        '''
         self.cube.rotate(' '.join(random.choices(moves, k=20)))
         self.state = self.cube.get_kociemba_facelet_positions()
 
@@ -50,6 +57,6 @@ class Environment:
     ) -> tuple:
         self.cube.rotate(action)
 
-        reward = 0
+        reward = self.algorithm.status()
 
         return (self.cube.get_kociemba_facelet_positions(), reward, self.is_terminated())
