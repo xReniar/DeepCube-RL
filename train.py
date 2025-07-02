@@ -1,6 +1,5 @@
-import magiccube
-import torch
-from environment import Cube
+from environment import Environment
+from CFOP_agents import create_agent
 
 
 #print(cube.get_kociemba_facelet_positions())
@@ -10,5 +9,5 @@ print(cube.get_kociemba_facelet_colors())
 print(cube.get_kociemba_facelet_positions())
 '''
 
-env_obj = Cube()
-print(env_obj.graph_state())
+env = Environment()
+agent = create_agent("DQN")
