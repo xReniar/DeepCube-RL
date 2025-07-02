@@ -5,7 +5,13 @@ import torch.nn as nn
 class Actor(nn.Module):
     def __init__(self):
         super().__init__()
-        self.state_size 
 
     def forward(self, x: torch.Tensor):
-        pass
+        return x
+
+class Critic(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, x: torch.Tensor):
+        return x
