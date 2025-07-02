@@ -1,1 +1,1 @@
-from .cube import Environment
+from .cube_env import Environment
