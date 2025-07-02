@@ -1,26 +1,48 @@
 import magiccube
-import torch
+import random
 
+
+moves = ['R', "R'", 'L', "L'", 'U', "U'", 'D', "D'", 'F', "F'", 'B', "B'"]
 
 class Environment:
     def __init__(
         self,
-        state: str
+        method: str,
+        state: str = None
     ) -> None:
         self.cube = magiccube.Cube(
             size = 3,
             state = state
         )
-
+        self.method: str = method
         self.start_state: str = self.cube.get_kociemba_facelet_positions()
         self.state: str = self.start_state
 
     def reset(self) -> str:
+        '''
+        Reset the environment to get the first observation
+        '''
         self.state = self.start_state
         return self.state
     
-    def get_action(self) -> None:
-        pass
+    def is_terminated(self) -> bool:
+        positions = self.cube.get_kociemba_facelet_positions()
+        faces = []
+        for i in range(0, 6):
+            faces.append(positions[9*i: 9 + 9*i])
+
+        top = any([face == "U" for face in faces[0]])
+        right = any([face == "R" for face in faces[1]])
+        front = any([face == "F" for face in faces[2]])
+        bottom = any([face == "D" for face in faces[3]])
+        left = any([face == "L" for face in faces[4]])
+        back = any([face == "B" for face in faces[5]])
+
+        return top and right and front and bottom and left and back
+    
+    def scramble(self) -> None:
+        self.cube.rotate(' '.join(random.choices(moves, k=20)))
+        self.state = self.cube.get_kociemba_facelet_positions()
 
     def step(
         self,
@@ -28,4 +50,6 @@ class Environment:
     ) -> tuple:
         self.cube.rotate(action)
 
-    
+        reward = 0
+
+        return (self.cube.get_kociemba_facelet_positions(), reward, self.is_terminated())
