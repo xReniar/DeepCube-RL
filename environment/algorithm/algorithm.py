@@ -1,17 +1,16 @@
 from abc import ABC, abstractmethod
-from magiccube import cube
+from magiccube import Cube
 
 
-class Method(ABC):
-    def __init__(
-        self,
-        cube:  cube.Cube
-    ) -> None:
+class Algorithm(ABC):
+    def __init__(self) -> None:
         super().__init__()
-        self.cube = cube
 
-    def cube_faces(self) -> dict[str, list]:
-        positions = self.cube.get_kociemba_facelet_positions()
+    def cube_faces(
+        self,
+        cube: Cube
+    ) -> dict[str, list]:
+        positions = cube.get_kociemba_facelet_positions()
         faces = []
         for i in range(0, 6):
             faces.append(positions[9*i: 9 + 9*i])
@@ -27,9 +26,15 @@ class Method(ABC):
 
         return faces_dict
 
-    def solved(self) -> bool:
-        return self.cube.is_done()
+    def solved(
+        self,
+        cube: Cube
+    ) -> bool:
+        return cube.is_done()
 
     @abstractmethod
-    def cube_status() -> int:
+    def status(
+        self,
+        cube: Cube
+    ) -> int:
         pass

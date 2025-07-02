@@ -1,20 +1,16 @@
-from .method import Method
-from magiccube import cube
+from .algorithm import Algorithm
+from magiccube import Cube
 
 
-class CFOP(Method):
-    def __init__(
-        self,
-        cube: cube.Cube
-    ) -> None:
-        super().__init__(cube)
-        self.cube = cube
+class CFOP(Algorithm):
+    def __init__(self) -> None:
+        super().__init__()
 
-    def cross(self) -> int:
+    def cross(self, cube: Cube) -> int:
         '''
         Checks if bottom cross pieces are inserted correctly
         '''
-        faces = self.cube_faces()
+        faces = self.cube_faces(cube)
         
         piece_1 = (faces["front"][7] == faces["front"][4]) and (faces["bottom"][1] == faces["bottom"][4])
         piece_4 = (faces["left"][7] == faces["left"][4]) and (faces["bottom"][3] == faces["bottom"][4])
@@ -57,5 +53,8 @@ class CFOP(Method):
 
         return int(all([front, right, back, left]))
         
-    def cube_status(self) -> int:
+    def status(
+        self,
+        cube: Cube
+    ) -> int:
         return self.cross() + self.F2L() + self.OLL() + self.PLL()

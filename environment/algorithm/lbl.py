@@ -1,8 +1,8 @@
-from .method import Method
+from .algorithm import Algorithm
 from magiccube import cube
 
 
-class LBL(Method):
+class LBL(Algorithm):
     def __init__(
         self,
         cube: cube.Cube
@@ -51,7 +51,7 @@ class LBL(Method):
     def top_corners(self) -> int:
         faces = self.cube_faces()
     
-    def cube_status(self) -> int:
+    def status(self) -> int:
         return self.bottom_cross() \
             + self.first_layer() \
             + self.second_layer() \
