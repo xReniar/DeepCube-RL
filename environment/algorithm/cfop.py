@@ -20,8 +20,8 @@ class CFOP(Algorithm):
         return piece_1 + piece_2 + piece_3 + piece_4
 
 
-    def F2L(self) -> int:
-        faces = self.cube_faces()
+    def F2L(self, cube: Cube) -> int:
+        faces = self.cube_faces(cube)
 
         sides = ["front", "right", "back", "left"]
         status = 0
@@ -32,19 +32,19 @@ class CFOP(Algorithm):
             status += int(all([corner, edge]))
 
 
-    def OLL(self) -> int:
+    def OLL(self, cube: Cube) -> int:
         '''
         Checks if OLL step is done
         '''
-        faces = self.cube_faces()
+        faces = self.cube_faces(cube)
 
         return int(all(c == "U" for c in faces["top"]))
 
-    def PLL(self) -> int:
+    def PLL(self, cube: Cube) -> int:
         '''
         Checks if PLL step is done
         '''
-        faces = self.cube_faces()
+        faces = self.cube_faces(cube)
 
         front = int(all(c == faces["front"][4]) for c in faces["front"][:3])
         right = int(all(c == faces["right"][4]) for c in faces["right"][:3])
@@ -57,4 +57,4 @@ class CFOP(Algorithm):
         self,
         cube: Cube
     ) -> int:
-        return self.cross() + self.F2L() + self.OLL() + self.PLL()
+        return self.cross(cube) + self.F2L(cube) + self.OLL(cube) + self.PLL(cube)
