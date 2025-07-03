@@ -1,8 +1,12 @@
 DQN:
-	gamma: 1
-	epsilon: 2
-	alpha: 3
-	maxMemorySize: 4
-	epsEnd: 0
-	replace: 10000 
-	actionSpace:
+    gamma:
+    epsilon: 1
+    epsEnd:
+    actionSpace: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    steps: 0
+    learn_step_counter:
+    memory:
+    memCntr:
+    replace_target_cnt: 
+
+A2C:
