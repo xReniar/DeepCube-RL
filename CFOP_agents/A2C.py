@@ -1,5 +1,7 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
+from .agent import Agent
 
 
 class Actor(nn.Module):
@@ -15,3 +17,11 @@ class Critic(nn.Module):
 
     def forward(self, x: torch.Tensor):
         return x
+    
+
+class A2C(Agent):
+    def __init__(self, args) -> None:
+        super().__init__(args)
+
+    def predict(self, state: str):
+        pass
