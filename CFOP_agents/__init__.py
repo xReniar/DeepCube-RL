@@ -1,16 +1,18 @@
-from .A2C import *
-from .DQN import *
+from .A2C import A2C
+from .DQN import DQN
+from .agent import Agent
 
 
-def create_agent(agent_type: str):
+def init_agent(agent_type: str, args: dict) -> Agent:
     if agent_type == "A2C":
-        pass
+        return A2C(args)
     elif agent_type == "DQN":
-        pass
+        return DQN(args)
     else:
         raise ValueError(f"No {agent_type} agent type exists!!!")
 
 
 __all__ = [
-    "create_agent"
+    "init_agent",
+    "Agent"
 ]
