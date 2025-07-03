@@ -1,5 +1,5 @@
 from environment import Environment
-from CFOP_agents import create_agent
+from CFOP_agents import init_agent, Agent
 
 
 #print(cube.get_kociemba_facelet_positions())
@@ -14,10 +14,11 @@ if __name__ == "__main__":
     env = Environment(method="CFOP")
     env.scramble()
     
-    model = create_agent("DQN")
+    args = dict()
+    agent: Agent = init_agent("DQN", args)
     
     obs = env.reset()
     done = False
     while not done:
-        action, _ = model.predict()
+        action, _ = agent.predict("")
         obs, reward, done = env.step(action)
