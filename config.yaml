@@ -1,0 +1,8 @@
+DQN:
+	gamma: 1
+	epsilon: 2
+	alpha: 3
+	maxMemorySize: 4
+	epsEnd: 0
+	replace: 10000 
+	actionSpace:
