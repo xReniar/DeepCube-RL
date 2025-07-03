@@ -1,6 +1,6 @@
 from .cfop import CFOP
 from .lbl import LBL
-from algorithm import Algorithm
+from .algorithm import Algorithm
 
 
 def init_algo(name: str) -> Algorithm:
