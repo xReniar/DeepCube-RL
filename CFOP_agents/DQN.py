@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from .agent import Agent
 
 
 class DeepQNet(nn.Module):
@@ -22,3 +23,11 @@ class DeepQNet(nn.Module):
         x = F.relu(self.fc3(x))
         x = self.fc4(x)
         return x
+    
+
+class DQN(Agent):
+    def __init__(self, args):
+        super().__init__(args)
+
+    def predict(self, state: str):
+        pass
