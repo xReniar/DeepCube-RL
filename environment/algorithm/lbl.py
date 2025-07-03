@@ -1,19 +1,19 @@
 from .algorithm import Algorithm
-from magiccube import cube
+from magiccube import Cube
 
 
 class LBL(Algorithm):
     def __init__(
         self,
-        cube: cube.Cube
+        cube: Cube
     ) -> None:
         self.cube = cube
 
-    def bottom_cross(self) -> int:
+    def bottom_cross(self, cube: Cube) -> int:
         '''
         Checks if bottom cross pieces are inserted correctly
         '''
-        faces = self.cube_faces()
+        faces = self.cube_faces(cube)
         
         piece_1 = (faces["front"][7] == faces["front"][4]) and (faces["bottom"][1] == faces["bottom"][4])
         piece_2 = (faces["right"][7] == faces["right"][4]) and (faces["bottom"][5] == faces["bottom"][4])
@@ -22,8 +22,8 @@ class LBL(Algorithm):
 
         return piece_1 + piece_2 + piece_3 + piece_4
 
-    def first_layer(self) -> int:
-        faces = self.cube_faces()
+    def first_layer(self, cube: Cube) -> int:
+        faces = self.cube_faces(cube)
 
         piece_1 = (faces["front"][8] == faces["front"][4]) and (faces["right"][6] == faces["right"][4])
         piece_2 = (faces["right"][8] == faces["right"][4]) and (faces["back"][6] == faces["back"][4])
@@ -32,8 +32,8 @@ class LBL(Algorithm):
 
         return piece_1 + piece_2 + piece_3 + piece_4
 
-    def second_layer(self) -> int:
-        faces = self.cube_faces()
+    def second_layer(self, cube: Cube) -> int:
+        faces = self.cube_faces(cube)
 
         piece_1 = (faces["front"][5] == faces["front"][4]) and (faces["right"][3] == faces["right"][4])
         piece_2 = (faces["right"][5] == faces["right"][4]) and (faces["back"][3] == faces["back"][4])
@@ -42,19 +42,19 @@ class LBL(Algorithm):
 
         return piece_1 + piece_2 + piece_3 + piece_4
 
-    def top_cross(self) -> int:
-        faces = self.cube_faces()
+    def top_cross(self, cube: Cube) -> int:
+        faces = self.cube_faces(cube)
 
-    def top_edge(self) -> int:
-        faces = self.cube_faces()
+    def top_edge(self, cube: Cube) -> int:
+        faces = self.cube_faces(cube)
 
-    def top_corners(self) -> int:
-        faces = self.cube_faces()
+    def top_corners(self, cube: Cube) -> int:
+        faces = self.cube_faces(cube)
     
-    def status(self) -> int:
-        return self.bottom_cross() \
-            + self.first_layer() \
-            + self.second_layer() \
-            + self.top_cross() \
-            + self.top_edge() \
-            + self.top_corners()
+    def status(self, cube: Cube) -> int:
+        return self.bottom_cross(cube) \
+            + self.first_layer(cube) \
+            + self.second_layer(cube) \
+            + self.top_cross(cube) \
+            + self.top_edge(cube) \
+            + self.top_corners(cube)
