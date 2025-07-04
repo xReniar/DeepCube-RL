@@ -16,6 +16,8 @@ class Environment:
             state = state
         )
         self.algorithm: Algorithm = init_algo(method)
+        
+        self.scramble() # to start with a scrambled cube
         self.start_state: str = self.cube.get_kociemba_facelet_positions()
         self.state: str = self.start_state
 
