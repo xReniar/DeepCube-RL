@@ -31,6 +31,8 @@ class CFOP(Algorithm):
 
             status += int(all([corner, edge]))
 
+        return status
+
 
     def OLL(self, cube: Cube) -> int:
         '''
