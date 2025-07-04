@@ -57,4 +57,22 @@ class CFOP(Algorithm):
         self,
         cube: Cube
     ) -> int:
-        return self.cross(cube) + self.F2L(cube) + self.OLL(cube) + self.PLL(cube)
+        '''
+        Return the number of completed steps of the cube
+        '''
+        weights = [10, 10, 10, 10]
+        cross_state = self.cross(cube) * weights[0]
+        f2l_state = self.F2L(cube) * weights[1]
+        oll_state = self.OLL(cube) * weights[2]
+        pll_state = self.PLL(cube) * weights[3]
+
+        if cross_state != 4:
+            return cross_state
+        elif f2l_state != 4:
+            return cross_state + f2l_state
+        elif oll_state == 1:
+            return cross_state + f2l_state + oll_state
+        else:
+            return cross_state + f2l_state + oll_state + pll_state
+        
+        return cross_state + f2l_state + oll_state + pll_state
