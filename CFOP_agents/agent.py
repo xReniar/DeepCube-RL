@@ -21,7 +21,7 @@ class Agent(ABC):
         for i, color in enumerate(state):
             one_hot[i, color_to_idx[color]] = 1.0
 
-        return one_hot.flatten()
+        return one_hot.flatten().to(self.device)
     
     @abstractmethod
     def action(self, state: str):
