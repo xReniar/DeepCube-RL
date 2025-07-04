@@ -3,16 +3,19 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch import optim
 from .agent import Agent
-import numpy as np
+from collections import namedtuple, deque
+import random
+import math
 
+
+Transition = namedtuple('Transition', ('state', 'action', 'next_state', 'reward'))
 
 class DeepQNet(nn.Module):
     def __init__(
         self,
         input_dim: int,
         hidden_dim: int,
-        output_dim: int,
-        alpha: float
+        output_dim: int
     ) -> None:
         super().__init__()
         self.fc1 = nn.Linear(input_dim, hidden_dim)
@@ -27,44 +30,85 @@ class DeepQNet(nn.Module):
         x = self.fc4(x)
         return x
     
+class ReplayMemory(object):
+    def __init__(self, capacity):
+        self.memory = deque([], maxlen=capacity)
+
+    def push(self, *args):
+        self.memory.append(Transition(*args))
+
+    def sample(self, batch_size):
+        return random.sample(self.memory, batch_size)
+
+    def __len__(self):
+        return len(self.memory)
 
 class DQN(Agent):
     def __init__(self, args):
         super().__init__(args)
-        self.GAMMA = args["gamma"]
-        self.EPSILON = args["epsilon"]
-        self.EPS_END = args["eps_end"]
-        self.action_space = args["actionSpace"]
-        self.memSize = args["maxMemorySize"]
         self.steps = 0
-        self.learn_step_counter = 0
-        self.memory = []
-        self.memCntr = 0
-        self.replace_target_cnt = args["replace"]
-        self.Q_eval = DeepQNet(54, 128, 12, )
-        self.T_eval = DeepQNet(54, 128, 12)
+        self.gamma: float = args["gamma"]
+        self.batch_size: int = args["batch_size"]
+        self.eps_start: float = args["eps_start"]
+        self.eps_end: float = args["eps_end"]
+        self.eps_decay: int = args["eps_decay"]
+        self.tau: float = args["tau"]
+        self.lr: float = args["lr"]
+        self.n_actions: int = args["n_action"]
+        self.num_episodes: int = args["num_episodes"]
 
-    def store_transition(self, state, action, reward, state_):
-        if self.memCntr < self.memSize:
-            self.memory.append([state, action, reward, state_])
-        else:
-            self.memory[self.memCntr % self.memSize] = [state, action, reward, state_]
-        self.memCntr += 1
-
-    def chooseAction(self, state: str):
-        rand = np.random.random()
-        actions = self.Q_eval(state)
-
-        if rand < 1 - self.EPSILON:
-            action = torch.argmax(actions[1]).item()
-        else:
-            action = np.random.choice(self.action_space)
-        self.steps += 1
+        self.policy_net = DeepQNet(54, 128, self.n_actions).to(self.device)
+        self.target_net = DeepQNet(54, 128, self.n_actions).to(self.device)
+        self.target_net.load_state_dict(self.policy_net.parameters())
         
-        return action
-    
-    def learn(self, batch_size):
-        pass
+        self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=self.lr, amsgrad=True)
+        self.memory = ReplayMemory(args["mem_capacity"])
 
-    def predict(self, state: str):
-        pass
+    def optimize_model(self):
+        if len(self.memory) < self.batch_size:
+            return
+        
+        transitions = self.memory.sample(self.batch_size)
+        batch = Transition(*zip(*transitions))
+
+        non_final_mask = torch.tensor(tuple(map(lambda s: s is not None,
+                                          batch.next_state)), device=self.device, dtype=torch.bool)
+        non_final_next_states = torch.cat([s for s in batch.next_state
+                                                    if s is not None])
+        
+        state_batch = torch.cat(batch.state)
+        action_batch = torch.cat(batch.action)
+        reward_batch = torch.cat(batch.reward)
+
+        state_action_values = self.policy_net(state_batch).gather(1, action_batch)
+
+        next_state_values = torch.zeros(self.batch_size, device=self.device)
+        with torch.no_grad():
+            next_state_values[non_final_mask] = self.target_net(non_final_next_states).max(1).values
+
+        expected_state_action_values = (next_state_values * self.gamma) + reward_batch
+
+        criterion = nn.SmoothL1Loss()
+        loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1))
+        self.optimizer.zero_grad()
+        loss.backward()
+
+        torch.nn.utils.clip_grad_value_(self.policy_net.parameters(), 100)
+        self.optimizer.step()
+
+
+    def action(self, state: str):
+        sample = random.random()
+        eps_threshold = self.eps_end + (self.eps_start - self.eps_end) * \
+            math.exp(-1 * self.steps / self.eps_decay)
+        self.steps += 1
+
+        if sample > eps_threshold:
+            with torch.no_grad():
+                return self.policy_net(state).max(1).indices.view(1,1)
+        else:
+            return torch.tensor(
+                [[random.randint(0, self.n_actions - 1)]],
+                device = self.device,
+                dtype = torch.long
+            )
