@@ -62,6 +62,6 @@ class Environment:
         self.state = self.cube.get_kociemba_facelet_positions()
 
         # calculate reward
-        reward = self.algorithm.status()
+        reward = self.algorithm.status(self.cube)
 
         return (self.state, reward, self.is_terminated())
