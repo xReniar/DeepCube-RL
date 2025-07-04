@@ -1,5 +1,5 @@
 from .algorithm import Algorithm, init_algo
-import magiccube
+from magiccube import Cube
 import random
 
 
@@ -11,7 +11,7 @@ class Environment:
         method: str,
         state: str = None
     ) -> None:
-        self.cube = magiccube.Cube(
+        self.cube = Cube(
             size = 3,
             state = state
         )
@@ -55,8 +55,11 @@ class Environment:
         self,
         action: str
     ) -> tuple:
+        # makes action and update state
         self.cube.rotate(action)
+        self.state = self.cube.get_kociemba_facelet_positions()
 
+        # calculate reward
         reward = self.algorithm.status()
 
-        return (self.cube.get_kociemba_facelet_positions(), reward, self.is_terminated())
+        return (self.state, reward, self.is_terminated())
