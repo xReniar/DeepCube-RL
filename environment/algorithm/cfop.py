@@ -48,10 +48,10 @@ class CFOP(Algorithm):
         '''
         faces = self.cube_faces(cube)
 
-        front = int(all(c == faces["front"][4]) for c in faces["front"][:3])
-        right = int(all(c == faces["right"][4]) for c in faces["right"][:3])
-        back = int(all(c == faces["back"][4]) for c in faces["back"][:3])
-        left = int(all(c == faces["left"][4]) for c in faces["left"][:3])
+        front = int(all((c == faces["front"][4]) for c in faces["front"][:3]))
+        right = int(all((c == faces["right"][4]) for c in faces["right"][:3]))
+        back = int(all((c == faces["back"][4]) for c in faces["back"][:3]))
+        left = int(all((c == faces["left"][4]) for c in faces["left"][:3]))
 
         return int(all([front, right, back, left]))
         
