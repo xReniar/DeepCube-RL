@@ -47,19 +47,19 @@ class DQN(Agent):
     def __init__(self, args):
         super().__init__(args)
         self.steps = 0
-        self.gamma: float = args["gamma"]
-        self.batch_size: int = args["batch_size"]
-        self.eps_start: float = args["eps_start"]
-        self.eps_end: float = args["eps_end"]
-        self.eps_decay: int = args["eps_decay"]
-        self.tau: float = args["tau"]
-        self.lr: float = args["lr"]
-        self.n_actions: int = args["n_actions"]
-        self.num_episodes: int = args["num_episodes"]
+        self.gamma: float = float(args["gamma"])
+        self.batch_size: int = int(args["batch_size"])
+        self.eps_start: float = float(args["eps_start"])
+        self.eps_end: float = float(args["eps_end"])
+        self.eps_decay: int = int(args["eps_decay"])
+        self.tau: float = float(args["tau"])
+        self.lr: float = float(args["lr"])
+        self.n_actions: int = int(args["n_actions"])
+        self.num_episodes: int = int(args["num_episodes"])
 
-        self.policy_net = DeepQNet(54, 128, self.n_actions).to(self.device)
-        self.target_net = DeepQNet(54, 128, self.n_actions).to(self.device)
-        self.target_net.load_state_dict(self.policy_net.parameters())
+        self.policy_net = DeepQNet(324, 128, self.n_actions).to(self.device)
+        self.target_net = DeepQNet(324, 128, self.n_actions).to(self.device)
+        self.target_net.load_state_dict(self.policy_net.state_dict())
         
         self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=self.lr, amsgrad=True)
         self.memory = ReplayMemory(args["mem_capacity"])
@@ -96,6 +96,16 @@ class DQN(Agent):
         torch.nn.utils.clip_grad_value_(self.policy_net.parameters(), 100)
         self.optimizer.step()
 
+    def soft_update(self):
+        # Soft update of the target network's weights
+        # θ′ ← τ θ + (1 −τ )θ′
+
+        target_net_state_dict = self.target_net.state_dict()
+        policy_net_state_dict = self.policy_net.state_dict()
+        for key in policy_net_state_dict:
+            target_net_state_dict[key] = policy_net_state_dict[key]*self.tau + target_net_state_dict[key]*(1-self.tau)
+        self.target_net.load_state_dict(target_net_state_dict)
+
 
     def action(self, state: str):
         sample = random.random()
@@ -107,7 +117,7 @@ class DQN(Agent):
 
         if sample > eps_threshold:
             with torch.no_grad():
-                return self.policy_net(state_tensor).max(1).indices.view(1,1)
+                return self.policy_net(state_tensor).max(0).indices.view(1,1)
         else:
             return torch.tensor(
                 [[random.randint(0, self.n_actions - 1)]],
