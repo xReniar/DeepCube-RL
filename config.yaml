@@ -1,12 +1,16 @@
+# Training hyperparameters
+num_episodes: 600
+
+# Algorithms settings
 DQN:
-    gamma:
-    epsilon: 1
-    epsEnd:
-    actionSpace: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-    steps: 0
-    learn_step_counter:
-    memory:
-    memCntr:
-    replace_target_cnt: 
+    mem_capacity: 10000
+    gamma: 0.99
+    batch_size: 128
+    eps_start: 0.09
+    eps_end: 0.01
+    eps_decay: 2500
+    tau: 0.005
+    lr: 3e-4
+    n_actions: 12
 
 A2C:
