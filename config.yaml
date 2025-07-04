@@ -1,7 +1,3 @@
-# Training hyperparameters
-num_episodes: 600
-
-# Algorithms settings
 DQN:
     mem_capacity: 10000
     gamma: 0.99
@@ -12,5 +8,6 @@ DQN:
     tau: 0.005
     lr: 3e-4
     n_actions: 12
+    num_episodes: 600
 
 A2C:
