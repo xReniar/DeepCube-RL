@@ -54,7 +54,7 @@ class DQN(Agent):
         self.eps_decay: int = args["eps_decay"]
         self.tau: float = args["tau"]
         self.lr: float = args["lr"]
-        self.n_actions: int = args["n_action"]
+        self.n_actions: int = args["n_actions"]
         self.num_episodes: int = args["num_episodes"]
 
         self.policy_net = DeepQNet(54, 128, self.n_actions).to(self.device)
@@ -103,9 +103,11 @@ class DQN(Agent):
             math.exp(-1 * self.steps / self.eps_decay)
         self.steps += 1
 
+        state_tensor = self.convert_state_to_tensor(state)
+
         if sample > eps_threshold:
             with torch.no_grad():
-                return self.policy_net(state).max(1).indices.view(1,1)
+                return self.policy_net(state_tensor).max(1).indices.view(1,1)
         else:
             return torch.tensor(
                 [[random.randint(0, self.n_actions - 1)]],
