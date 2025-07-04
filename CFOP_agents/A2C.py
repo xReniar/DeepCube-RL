@@ -22,6 +22,8 @@ class Critic(nn.Module):
 class A2C(Agent):
     def __init__(self, args) -> None:
         super().__init__(args)
+        self.actor = Actor().to(self.device)
+        self.critic = Critic().to(self.device)
 
-    def predict(self, state: str):
+    def action(self, state: str):
         pass
