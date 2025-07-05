@@ -4,7 +4,12 @@ import random
 import torch
 
 
-moves = ["U", "D", "F", "R", "B", "L", "U'", "D'", "F'", "R'", "B'", "L'"]
+moves = ["U", "D", "F", "R", "B", "L",
+         "U'", "D'", "F'", "R'", "B'", "L'"]
+color = {
+    "U": 0,"D": 1,"F": 2,
+    "R": 3,"B": 4,"L": 5
+}
 
 class Environment:
     def __init__(
@@ -24,12 +29,9 @@ class Environment:
     def __state_to_tensor(self, state: str) -> torch.Tensor:
         state_for_tensor = []
         for s in state:
-            state_for_tensor.append(state[s])
+            state_for_tensor.append(color[s])
 
-        return torch.tensor(state_for_tensor, device=self.device, dtype=torch.float)
-    
-    def __convert_tensor_to_move(self, tensor_action: torch.Tensor) -> str:
-        return moves[tensor_action.item()]
+        return torch.tensor(state_for_tensor, device=self.device, dtype=torch.float).unsqueeze(0)
 
     def reset(self) -> torch.Tensor:
         '''
@@ -65,11 +67,13 @@ class Environment:
 
     def step(
         self,
-        action_tensor: torch.Tensor
+        move_id: int
     ) -> tuple:
-        # makes action and update state
-        move = self.__convert_tensor_to_move(action_tensor)
+        # makes action
+        move = moves[move_id]
         self.cube.rotate(move)
+
+        # update state
         self.state = self.__state_to_tensor(self.cube.get_kociemba_facelet_positions())
 
         # calculate reward
