@@ -76,9 +76,9 @@ class DQN(Agent):
         non_final_next_states = torch.cat([s for s in batch.next_state
                                                     if s is not None])
         
-        state_batch = torch.cat(batch.state)
-        action_batch = torch.cat(batch.action)
-        reward_batch = torch.cat(batch.reward)
+        state_batch = torch.stack(batch.state)
+        action_batch = torch.stack(batch.action).squeeze(-1)
+        reward_batch = torch.stack(batch.reward)
 
         state_action_values = self.policy_net(state_batch).gather(1, action_batch)
 
@@ -107,17 +107,15 @@ class DQN(Agent):
         self.target_net.load_state_dict(target_net_state_dict)
 
 
-    def action(self, state: str):
+    def action(self, state: torch.Tensor) -> torch.Tensor:
         sample = random.random()
         eps_threshold = self.eps_end + (self.eps_start - self.eps_end) * \
             math.exp(-1 * self.steps / self.eps_decay)
         self.steps += 1
 
-        state_tensor = self.convert_state_to_tensor(state)
-
         if sample > eps_threshold:
             with torch.no_grad():
-                return self.policy_net(state_tensor).max(0).indices.view(1,1)
+                return self.policy_net.forward(state).max(0).indices.view(1,1)
         else:
             return torch.tensor(
                 [[random.randint(0, self.n_actions - 1)]],
