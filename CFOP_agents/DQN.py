@@ -8,8 +8,6 @@ import random
 import math
 
 
-Transition = namedtuple('Transition', ('state', 'action', 'next_state', 'reward'))
-
 class DeepQNet(nn.Module):
     def __init__(
         self,
@@ -20,16 +18,18 @@ class DeepQNet(nn.Module):
         super().__init__()
         self.fc1 = nn.Linear(input_dim, hidden_dim)
         self.fc2 = nn.Linear(hidden_dim, hidden_dim)
-        self.fc3 = nn.Linear(hidden_dim, hidden_dim // 2)
-        self.fc4 = nn.Linear(hidden_dim // 2, output_dim)
+        self.fc3 = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x: torch.Tensor):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        x = F.relu(self.fc3(x))
-        x = self.fc4(x)
+        x = self.fc3(x)
         return x
-    
+
+Transition = namedtuple('Transition',
+                        ('state', 'action', 'next_state', 'reward'))
+
+
 class ReplayMemory(object):
     def __init__(self, capacity):
         self.memory = deque([], maxlen=capacity)
@@ -57,14 +57,14 @@ class DQN(Agent):
         self.n_actions: int = int(args["n_actions"])
         self.num_episodes: int = int(args["num_episodes"])
 
-        self.policy_net = DeepQNet(324, 128, self.n_actions).to(self.device)
-        self.target_net = DeepQNet(324, 128, self.n_actions).to(self.device)
+        self.policy_net = DeepQNet(54, 128, self.n_actions).to(self.device)
+        self.target_net = DeepQNet(54, 128, self.n_actions).to(self.device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         
         self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=self.lr, amsgrad=True)
-        self.memory = ReplayMemory(args["mem_capacity"])
+        self.memory = ReplayMemory(int(args["mem_capacity"]))
 
-    def optimize_model(self):
+    def optimize(self):
         if len(self.memory) < self.batch_size:
             return
         
@@ -76,49 +76,40 @@ class DQN(Agent):
         non_final_next_states = torch.cat([s for s in batch.next_state
                                                     if s is not None])
         
-        state_batch = torch.stack(batch.state)
-        action_batch = torch.stack(batch.action).squeeze(-1)
-        reward_batch = torch.stack(batch.reward)
+        state_batch = torch.cat(batch.state)
+        action_batch = torch.cat(batch.action)
+        reward_batch = torch.cat(batch.reward)
 
         state_action_values = self.policy_net(state_batch).gather(1, action_batch)
 
         next_state_values = torch.zeros(self.batch_size, device=self.device)
         with torch.no_grad():
             next_state_values[non_final_mask] = self.target_net(non_final_next_states).max(1).values
-
+        # Compute the expected Q values
         expected_state_action_values = (next_state_values * self.gamma) + reward_batch
 
         criterion = nn.SmoothL1Loss()
         loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1))
+
+        # Optimize the model
         self.optimizer.zero_grad()
         loss.backward()
-
+        # In-place gradient clipping
         torch.nn.utils.clip_grad_value_(self.policy_net.parameters(), 100)
         self.optimizer.step()
-
-    def soft_update(self):
-        # Soft update of the target network's weights
-        # θ′ ← τ θ + (1 −τ )θ′
-
-        target_net_state_dict = self.target_net.state_dict()
-        policy_net_state_dict = self.policy_net.state_dict()
-        for key in policy_net_state_dict:
-            target_net_state_dict[key] = policy_net_state_dict[key]*self.tau + target_net_state_dict[key]*(1-self.tau)
-        self.target_net.load_state_dict(target_net_state_dict)
 
 
     def action(self, state: torch.Tensor) -> torch.Tensor:
         sample = random.random()
         eps_threshold = self.eps_end + (self.eps_start - self.eps_end) * \
-            math.exp(-1 * self.steps / self.eps_decay)
+            math.exp(-1. * self.steps / self.eps_decay)
         self.steps += 1
 
         if sample > eps_threshold:
             with torch.no_grad():
-                return self.policy_net.forward(state).max(0).indices.view(1,1)
+                return self.policy_net.forward(state).max(1).indices.view(1, 1)
         else:
             return torch.tensor(
-                [[random.randint(0, self.n_actions - 1)]],
-                device = self.device,
-                dtype = torch.long
+                data=[[random.randint(0, self.n_actions - 1)]],
+                device=self.device
             )
