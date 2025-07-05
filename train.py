@@ -11,33 +11,41 @@ device = torch.device(
     "cpu"
 )
 
-def convert_tensor_to_move(tensor: torch.Tensor) -> str:
-    moves = {
-        0: "U",1: "D",2: "F",3: "R",4: "B",5: "L",
-        6: "U'",7: "D'",8: "F'",9: "R'",10: "B'",11: "L'",
-    }
-
-    return moves[tensor.item()]
-
-
 if __name__ == "__main__":
-    env = Environment(method="CFOP")
+    env = Environment(
+        method="CFOP",
+        size=3,
+        device=device
+    )
     env.scramble()
+    import time
     
     args = yaml.safe_load(open("config.yaml", "r"))
     agent: DQN = DQN(args["DQN"])
 
-    for i_episode in range(agent.num_episodes):
+    rewards = set()
+    for _ in range(agent.num_episodes):
         state = env.reset()
-        
+
         for t in count():
             action = agent.action(state)
-            obs, reward, done = env.step(action)
+            obs, reward, done = env.step(action.item())
+            #print(type(next_state), reward, type(done))
 
             reward = torch.tensor([reward], device=device)
 
-            agent.memory.push(state, action, obs, reward)
-            state = obs
+            if done:
+                next_state = None
+            else:
+                next_state = obs
 
-            agent.optimize_model()
-            agent.soft_update()
+            agent.memory.push(state, action, next_state, reward)
+            state = next_state
+
+            agent.optimize()
+
+            target_net_state_dict = agent.target_net.state_dict()
+            policy_net_state_dict = agent.policy_net.state_dict()
+            for key in policy_net_state_dict:
+                target_net_state_dict[key] = policy_net_state_dict[key]*agent.tau + target_net_state_dict[key]*(1-agent.tau)
+            agent.target_net.load_state_dict(target_net_state_dict)
