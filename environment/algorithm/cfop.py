@@ -64,13 +64,13 @@ class CFOP(Algorithm):
         '''
         weights = [10, 10, 10, 10]
         cross_state = self.cross(cube) * weights[0]
-        f2l_state = self.F2L(cube) * weights[1]
-        oll_state = self.OLL(cube) * weights[2]
-        pll_state = self.PLL(cube) * weights[3]
+        f2l_state = self.F2L(cube) * weights[0]
+        oll_state = self.OLL(cube) * weights[0]
+        pll_state = self.PLL(cube) * weights[0]
 
-        if cross_state != 4:
+        if cross_state < 4:
             return cross_state
-        elif f2l_state != 4:
+        elif f2l_state < 4:
             return cross_state + f2l_state
         elif oll_state == 1:
             return cross_state + f2l_state + oll_state
@@ -78,3 +78,12 @@ class CFOP(Algorithm):
             return cross_state + f2l_state + oll_state + pll_state
         
         return cross_state + f2l_state + oll_state + pll_state
+
+
+'''
+algo = CFOP()
+cube = Cube()
+cube.rotate("R F")
+
+print(algo.cross(cube))
+'''
