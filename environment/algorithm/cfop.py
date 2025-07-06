@@ -6,7 +6,7 @@ class CFOP(Algorithm):
     def __init__(self) -> None:
         super().__init__()
 
-    def cross(self, cube: Cube) -> int:
+    def cross(self, cube: Cube) -> float:
         '''
         Checks if bottom cross pieces are inserted correctly
         '''
@@ -17,10 +17,10 @@ class CFOP(Algorithm):
         piece_2 = (faces["right"][7] == faces["right"][4]) and (faces["bottom"][5] == faces["bottom"][4])
         piece_3 = (faces["back"][7] == faces["back"][4]) and (faces["bottom"][7] == faces["bottom"][4])
 
-        return piece_1 + piece_2 + piece_3 + piece_4
+        return float(piece_1) + float(piece_2) + float(piece_3) + float(piece_4)
 
 
-    def F2L(self, cube: Cube) -> int:
+    def F2L(self, cube: Cube) -> float:
         faces = self.cube_faces(cube)
 
         sides = ["front", "right", "back", "left"]
@@ -29,20 +29,20 @@ class CFOP(Algorithm):
             corner = (faces[l_side][8] == faces[l_side][4]) and (faces[r_side][6] == faces[r_side][4])
             edge = (faces[l_side][5] == faces[l_side][4]) and (faces[r_side][3] == faces[r_side][4])
 
-            status += int(all([corner, edge]))
+            status += float(all([corner, edge]))
 
         return status
 
 
-    def OLL(self, cube: Cube) -> int:
+    def OLL(self, cube: Cube) -> float:
         '''
         Checks if OLL step is done
         '''
         faces = self.cube_faces(cube)
 
-        return int(all(c == "U" for c in faces["top"]))
+        return float(all(c == "U" for c in faces["top"]))
 
-    def PLL(self, cube: Cube) -> int:
+    def PLL(self, cube: Cube) -> float:
         '''
         Checks if PLL step is done
         '''
@@ -53,12 +53,12 @@ class CFOP(Algorithm):
         back = int(all((c == faces["back"][4]) for c in faces["back"][:3]))
         left = int(all((c == faces["left"][4]) for c in faces["left"][:3]))
 
-        return int(all([front, right, back, left]))
+        return float(all([front, right, back, left]))
         
     def status(
         self,
         cube: Cube
-    ) -> int:
+    ) -> float:
         '''
         Return the number of completed steps of the cube
         '''
