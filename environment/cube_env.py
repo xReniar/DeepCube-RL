@@ -1,5 +1,6 @@
 from .algorithm import Algorithm, init_algo
 from magiccube import Cube
+from .dummy_cube import DummyCube
 import random
 import torch
 
@@ -8,7 +9,8 @@ moves = ["U", "D", "F", "R", "B", "L",
          "U'", "D'", "F'", "R'", "B'", "L'"]
 color = {
     "U": 0,"D": 1,"F": 2,
-    "R": 3,"B": 4,"L": 5
+    "R": 3,"B": 4,"L": 5,
+    ".": 7
 }
 
 class Environment:
@@ -18,7 +20,7 @@ class Environment:
         size: int,
         device: str
     ) -> None:
-        self.cube = Cube(size=size)
+        self.cube = DummyCube()
         self.algorithm: Algorithm = init_algo(method)
         self.device = device
         
@@ -55,6 +57,8 @@ class Environment:
         bottom = all([face == "D" for face in faces[3]])
         left = all([face == "L" for face in faces[4]])
         back = all([face == "B" for face in faces[5]])
+
+        return self.algorithm.status(self.cube) == 40.0
 
         return top and right and front and bottom and left and back
     
