@@ -18,28 +18,40 @@ if __name__ == "__main__":
         device=device
     )
     env.scramble()
-    import time
     
     args = yaml.safe_load(open("config.yaml", "r"))
     agent: DQN = DQN(args["DQN"])
 
-    rewards = set()
     for _ in range(agent.num_episodes):
         state = env.reset()
+
+        current_reward = env.algorithm.status(env.cube)
 
         for t in count():
             action = agent.action(state)
             obs, reward, done = env.step(action.item())
             #print(type(next_state), reward, type(done))
 
-            reward = torch.tensor([reward], device=device)
+            if reward == 0:
+                current_reward -= 1
+            else:
+                if current_reward == reward:
+                    current_reward -= 1
+                else:
+                    current_reward = reward
+
+            #env.cube.print()
+            #print(current_reward, action.item())
+            print(current_reward, action.item())
+
+            torch_current_reward = torch.tensor([current_reward], device=device)
 
             if done:
                 next_state = None
             else:
                 next_state = obs
 
-            agent.memory.push(state, action, next_state, reward)
+            agent.memory.push(state, action, next_state, torch_current_reward)
             state = next_state
 
             agent.optimize()
@@ -49,3 +61,6 @@ if __name__ == "__main__":
             for key in policy_net_state_dict:
                 target_net_state_dict[key] = policy_net_state_dict[key]*agent.tau + target_net_state_dict[key]*(1-agent.tau)
             agent.target_net.load_state_dict(target_net_state_dict)
+
+            if done:
+                break
