@@ -8,6 +8,6 @@ DQN:
     tau: 0.005
     lr: 3e-5
     n_actions: 12
-    num_episodes: 600
+    num_episodes: 100
 
 A2C:
