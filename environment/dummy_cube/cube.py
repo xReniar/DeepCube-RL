@@ -143,8 +143,8 @@ class DummyCube():
             self.B(clockwise)
         if move[0] == "L":
             self.L(clockwise)
-
-    def print(self):
+    
+    def __str__(self):
         def format_face(face):
             return [face[i*3:(i+1)*3] for i in range(3)]
 
@@ -155,20 +155,21 @@ class DummyCube():
         right = format_face(self.right)
         back = format_face(self.back)
 
-        # Top face
+        lines = []
+
         for row in top:
-            print("      " + " ".join(row))
+            lines.append("      " + " ".join(row))
 
-        # Left, Front, Right, Back
         for i in range(3):
-            print(" ".join(left[i]) + " " +
-                  " ".join(front[i]) + " " +
-                  " ".join(right[i]) + " " +
-                  " ".join(back[i]))
+            lines.append(" ".join(left[i]) + " " +
+                        " ".join(front[i]) + " " +
+                        " ".join(right[i]) + " " +
+                        " ".join(back[i]))
 
-        # Bottom face
         for row in bottom:
-            print("      " + " ".join(row))
+            lines.append("      " + " ".join(row))
+
+        return "\n".join(lines)
 
     def get_kociemba_facelet_positions(self) -> str:
         u = "".join(self.top)
