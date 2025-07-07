@@ -30,9 +30,32 @@ class Environment:
         self.state: torch.Tensor = self.start_state
 
     def __state_to_tensor(self, state: str) -> torch.Tensor:
+        '''
         state_for_tensor = []
         for s in state:
             state_for_tensor.append(color[s])
+        '''
+        faces = []
+
+
+        for i in range(0, 6):
+            faces.append(state[9*i: 9 + 9*i])
+
+        top = faces[0]
+        bottom = faces[3]
+        front = faces[2]
+        right = faces[1]
+        back = faces[5]
+        left = faces[4]
+        state_for_tensor = []
+
+        for i in range(9):
+            state_for_tensor.append(color[top[i]])
+            state_for_tensor.append(color[front[i]])
+            state_for_tensor.append(color[right[i]])
+            state_for_tensor.append(color[back[i]])
+            state_for_tensor.append(color[left[i]])
+            state_for_tensor.append(color[bottom[i]])
 
         return torch.tensor(state_for_tensor, device=self.device, dtype=torch.float).unsqueeze(0)
 
@@ -82,6 +105,5 @@ class Environment:
 
         # calculate reward
         reward = self.algorithm.status(self.cube)
-        print(reward)
 
         return (self.state, reward, self.is_terminated())
