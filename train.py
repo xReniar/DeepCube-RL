@@ -22,7 +22,7 @@ if __name__ == "__main__":
     args = yaml.safe_load(open("config.yaml", "r"))
     agent: DQN = DQN(args["DQN"])
 
-    for _ in range(agent.num_episodes):
+    for episode in range(agent.num_episodes):
         state = env.reset()
 
         current_reward = env.algorithm.status(env.cube)
@@ -42,7 +42,6 @@ if __name__ == "__main__":
                     current_reward = reward
             '''
             current_reward = reward
-            print(current_reward, action.item())
 
             #env.cube.print()
             #print(current_reward, action.item())
@@ -67,4 +66,6 @@ if __name__ == "__main__":
             agent.target_net.load_state_dict(target_net_state_dict)
 
             if done:
+                with open(f"episode{episode}-{t}.txt", "w") as f:
+                    f.write(env.cube.__str__())
                 break
