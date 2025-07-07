@@ -30,22 +30,8 @@ if __name__ == "__main__":
         for t in count():
             action = agent.action(state)
             obs, reward, done = env.step(action.item())
-            #print(type(next_state), reward, type(done))
 
-            '''
-            if reward == 0:
-                current_reward -= 1
-            else:
-                if current_reward == reward:
-                    current_reward -= 1
-                else:
-                    current_reward = reward
-            '''
             current_reward = reward
-
-            #env.cube.print()
-            #print(current_reward, action.item())
-            #print(current_reward, action.item())
 
             torch_current_reward = torch.tensor([current_reward], device=device)
 
