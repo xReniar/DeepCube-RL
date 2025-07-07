@@ -11,13 +11,34 @@ class CFOP(Algorithm):
         Checks if bottom cross pieces are inserted correctly
         '''
         faces = self.cube_faces(cube)
-        
-        piece_1 = (faces["front"][7] == faces["front"][4]) and (faces["bottom"][1] == faces["bottom"][4])
-        piece_4 = (faces["left"][7] == faces["left"][4]) and (faces["bottom"][3] == faces["bottom"][4])
-        piece_2 = (faces["right"][7] == faces["right"][4]) and (faces["bottom"][5] == faces["bottom"][4])
-        piece_3 = (faces["back"][7] == faces["back"][4]) and (faces["bottom"][7] == faces["bottom"][4])
 
-        return float(piece_1) + float(piece_2) + float(piece_3) + float(piece_4)
+        sides = ["front", "right", "back", "left"]
+        adjacency = {}
+        for i, direction in enumerate(sides):
+            left_adj = sides[(i - 1) % len(sides)]
+            right_adj = sides[(i + 1) % len(sides)]
+            adjacency[direction] = [left_adj, right_adj]
+
+        cross_status = 0.0
+        for face in adjacency.keys():
+            if ((faces[face][3] == faces[face][4]) and (faces[adjacency[face][0]][5] == faces["bottom"][4])) or \
+               ((faces[face][5] == faces[face][4]) and (faces[adjacency[face][1]][3] == faces["bottom"][4])):
+                cross_status += 10.0
+            else:
+                if face == "front":
+                    cross_status += int((faces[face][1] == faces[face][4]) and (faces["top"][7] == faces["bottom"][4])) * 5.0 + \
+                                    int((faces[face][7] == faces[face][4]) and (faces["bottom"][1] == faces["bottom"][4])) * 25.0
+                elif face == "right":
+                    cross_status += int((faces[face][1] == faces[face][4]) and (faces["top"][5] == faces["bottom"][4])) * 5.0 + \
+                                    int((faces[face][7] == faces[face][4]) and (faces["bottom"][5] == faces["bottom"][4])) * 25.0
+                elif face == "back":
+                    cross_status += int((faces[face][1] == faces[face][4]) and (faces["top"][1] == faces["bottom"][4])) * 5.0 + \
+                                    int((faces[face][7] == faces[face][4]) and (faces["bottom"][7] == faces["bottom"][4])) * 25.0
+                else:
+                    cross_status += int((faces[face][1] == faces[face][4]) and (faces["top"][3] == faces["bottom"][4])) * 5.0 + \
+                                    int((faces[face][7] == faces[face][4]) and (faces["bottom"][3] == faces["bottom"][4])) * 25.0
+
+        return cross_status
 
 
     def F2L(self, cube: Cube) -> float:
