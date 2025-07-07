@@ -22,7 +22,7 @@ class DeepQNet(nn.Module):
         self.embedding = nn.Linear(1, attention_dim)
         self.attn = nn.MultiheadAttention(embed_dim=attention_dim, num_heads=num_heads, batch_first=True)
 
-        self.fc1 = nn.Linear(input_dim * attention_dim, hidden_dim)
+        self.fc1 = nn.Linear(input_dim, hidden_dim)
         self.fc2 = nn.Linear(hidden_dim, hidden_dim)
         self.fc3 = nn.Linear(hidden_dim, hidden_dim)
         self.fc4 = nn.Linear(hidden_dim, hidden_dim)
@@ -31,12 +31,15 @@ class DeepQNet(nn.Module):
         self.fc7 = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x: torch.Tensor):
+        '''
         batch_size = x.size(0)
         x = x.unsqueeze(-1)
         x = self.embedding(x)
         x_attn, _ = self.attn(x, x, x)
 
         x_flat = x_attn.reshape(batch_size, -1)
+        '''
+        x_flat = x
 
         x = F.relu(self.fc1(x_flat))
         x = F.relu(self.fc2(x))
