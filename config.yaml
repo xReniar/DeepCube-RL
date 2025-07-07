@@ -1,6 +1,6 @@
 DQN:
     mem_capacity: 100000
-    gamma: 0.99
+    gamma: 0.4
     batch_size: 4096
     eps_start: 0.9
     eps_end: 0.01
