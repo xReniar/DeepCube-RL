@@ -32,6 +32,7 @@ if __name__ == "__main__":
             obs, reward, done = env.step(action.item())
             #print(type(next_state), reward, type(done))
 
+            '''
             if reward == 0:
                 current_reward -= 1
             else:
@@ -39,10 +40,13 @@ if __name__ == "__main__":
                     current_reward -= 1
                 else:
                     current_reward = reward
+            '''
+            current_reward = reward
+            print(current_reward, action.item())
 
             #env.cube.print()
             #print(current_reward, action.item())
-            print(current_reward, action.item())
+            #print(current_reward, action.item())
 
             torch_current_reward = torch.tensor([current_reward], device=device)
 
