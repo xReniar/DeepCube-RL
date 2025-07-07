@@ -20,8 +20,8 @@ class Environment:
         size: int,
         device: str
     ) -> None:
-        self.cube = DummyCube()
-        #self.cube = Cube(size=size)
+        #self.cube = DummyCube()
+        self.cube = Cube(size=size)
         self.algorithm: Algorithm = init_algo(method)
         self.device = device
         
