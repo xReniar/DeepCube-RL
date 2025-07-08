@@ -1,5 +1,5 @@
 environment:
-    scramble_moves: 1
+    scramble_moves: 10
 
 DQN:
     mem_capacity: 100000
