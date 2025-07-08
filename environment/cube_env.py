@@ -5,8 +5,8 @@ import random
 import torch
 
 
-moves = ["U", "D", "F", "R", "B", "L",
-         "U'", "D'", "F'", "R'", "B'", "L'"]
+moves = ["U", "U'", "D", "D'", "F", "F'",
+         "R", "R'", "B", "B'", "L", "L'"]
 color = {
     "U": 0,"D": 1,"F": 2,
     "R": 3,"B": 4,"L": 5,
@@ -23,8 +23,8 @@ class Environment:
     ) -> None:
         args = args["environment"]
         
-        self.cube = DummyCube()
-        #self.cube = Cube(size=size)
+        #self.cube = DummyCube()
+        self.cube = Cube(size=size)
         self.algorithm: Algorithm = init_algo(method)
         self.device = device
         self.scramble_moves = int(args["scramble_moves"])
