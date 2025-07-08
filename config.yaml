@@ -1,6 +1,9 @@
+environment:
+    scramble_moves: 1
+
 DQN:
     mem_capacity: 100000
-    gamma: 0.4
+    gamma: 0.1
     batch_size: 2048
     eps_start: 0.9
     eps_end: 0.01
@@ -8,6 +11,14 @@ DQN:
     tau: 0.005
     lr: 3e-5
     n_actions: 12
-    num_episodes: 100
+    num_episodes: 10000
 
 A2C:
+    total_timesteps:
+    timesteps_per_batch:
+    max_timesteps_per_episode:
+    n_updates_per_iteration:
+    lr: 3e-5
+    gamma:
+    clip:
+    n_actions: 12
