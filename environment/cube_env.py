@@ -5,8 +5,15 @@ import random
 import torch
 
 
-moves = ["U", "U'", "D", "D'", "F", "F'",
-         "R", "R'", "B", "B'", "L", "L'"]
+moves = [
+    "#",
+    "U", "U'", "U2",
+    "D", "D'", "D2",
+    "F", "F'", "F2",
+    "R", "R'", "R2",
+    "B", "B'", "B2",
+    "L", "L'", "L2"
+]
 color = {
     "U": 0,"D": 1,"F": 2,
     "R": 3,"B": 4,"L": 5,
@@ -102,7 +109,8 @@ class Environment:
     ) -> tuple:
         # makes action
         move = moves[move_id]
-        self.cube.rotate(move)
+        if move != "#":
+            self.cube.rotate(move)
 
         # update state
         self.state = self.__state_to_tensor(self.cube.get_kociemba_facelet_positions())
