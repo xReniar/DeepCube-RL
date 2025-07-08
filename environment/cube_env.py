@@ -18,12 +18,16 @@ class Environment:
         self,
         method: str,
         size: int,
-        device: str
+        device: str,
+        args: dict
     ) -> None:
-        #self.cube = DummyCube()
-        self.cube = Cube(size=size)
+        args = args["environment"]
+        
+        self.cube = DummyCube()
+        #self.cube = Cube(size=size)
         self.algorithm: Algorithm = init_algo(method)
         self.device = device
+        self.scramble_moves = int(args["scramble_moves"])
         
         self.scramble() # to start with a scrambled cube
         self.start_state: torch.Tensor = self.__state_to_tensor(self.cube.get_kociemba_facelet_positions())
@@ -89,7 +93,7 @@ class Environment:
         '''
         Scrambles the cube
         '''
-        self.cube.rotate(' '.join(random.choices(moves, k=20)))
+        self.cube.rotate(' '.join(random.choices(moves, k=self.scramble_moves)))
         self.state = self.__state_to_tensor(self.cube.get_kociemba_facelet_positions())
 
     def step(
