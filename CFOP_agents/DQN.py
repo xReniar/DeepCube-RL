@@ -65,8 +65,8 @@ class DQN(Agent):
         self.n_actions: int = int(args["n_actions"])
         self.num_episodes: int = int(args["num_episodes"])
 
-        self.policy_net = DeepQNet(54, 128, self.n_actions).to(self.device)
-        self.target_net = DeepQNet(54, 128, self.n_actions).to(self.device)
+        self.policy_net = DeepQNet(54, 1024, self.n_actions).to(self.device)
+        self.target_net = DeepQNet(54, 1024, self.n_actions).to(self.device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         
         self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=self.lr, amsgrad=True)
