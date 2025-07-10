@@ -21,8 +21,9 @@ class DummyCube():
         face_list[8] = copy[2]
 
 
-    def U(self, clockwise: bool):
+    def U(self, clockwise: bool, n_times: int):
         n = 1 if clockwise else 3
+        n = 2 if n_times == 2 else n
         for _ in range(n):
             self.face_rotation(self.top)
 
@@ -37,8 +38,9 @@ class DummyCube():
                 self.back[i] = l_copy[i]
                 self.left[i] = f_copy[i]
 
-    def D(self, clockwise: bool):
+    def D(self, clockwise: bool, n_times: int):
         n = 1 if clockwise else 3
+        n = 2 if n_times == 2 else n
         for _ in range(n):
             self.face_rotation(self.bottom)
 
@@ -53,8 +55,9 @@ class DummyCube():
                 self.back[i] = r_copy[i-6]
                 self.left[i] = b_copy[i-6]
 
-    def F(self, clockwise: bool):
+    def F(self, clockwise: bool, n_times: int):
         n = 1 if clockwise else 3
+        n = 2 if n_times == 2 else n
         for _ in range(n):
             self.face_rotation(self.front)
 
@@ -71,8 +74,9 @@ class DummyCube():
                 self.bottom[2 - i] = right[i]
                 self.left[8-i*3] = bottom[i]
 
-    def R(self, clockwise: bool):
+    def R(self, clockwise: bool, n_times: int):
         n = 1 if clockwise else 3
+        n = 2 if n_times == 2 else n
         for _ in range(n):
             self.face_rotation(self.right)
 
@@ -91,8 +95,9 @@ class DummyCube():
                 self.bottom[i] = back[x]
                 self.back[8-i] = top[x]
 
-    def B(self, clockwise: bool):
+    def B(self, clockwise: bool, n_times: int):
         n = 1 if clockwise else 3
+        n = 2 if n_times == 2 else n
         for _ in range(n):
             self.face_rotation(self.back)
 
@@ -109,8 +114,9 @@ class DummyCube():
                 self.bottom[8 - i] = left[i]
                 self.left[6-i*3] = top[i]
 
-    def L(self, clockwise: bool):
+    def L(self, clockwise: bool, n_times: int):
         n = 1 if clockwise else 3
+        n = 2 if n_times == 2 else n
         for _ in range(n):
             self.face_rotation(self.left)
 
@@ -131,18 +137,20 @@ class DummyCube():
 
     def rotate(self, move: str):
         clockwise = (len(move) == 1)
+        n_turns = 2 if not clockwise and move[1].isdigit() else 1
+
         if move[0] == "U":
-            self.U(clockwise)
+            self.U(clockwise, n_turns)
         if move[0] == "D":
-            self.D(clockwise)
+            self.D(clockwise, n_turns)
         if move[0] == "F":
-            self.F(clockwise)
+            self.F(clockwise, n_turns)
         if move[0] == "R":
-            self.R(clockwise)
+            self.R(clockwise, n_turns)
         if move[0] == "B":
-            self.B(clockwise)
+            self.B(clockwise, n_turns)
         if move[0] == "L":
-            self.L(clockwise)
+            self.L(clockwise, n_turns)
     
     def __str__(self):
         def format_face(face):
