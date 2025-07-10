@@ -13,12 +13,12 @@ DQN:
     n_actions: 19
     num_episodes: 10000
 
-A2C:
-    total_timesteps:
-    timesteps_per_batch:
-    max_timesteps_per_episode:
-    n_updates_per_iteration:
-    lr: 3e-5
-    gamma:
-    clip:
-    n_actions: 12
+SA2C:
+    alpha: 0.0003
+    beta: 0.0003
+    gamma: 0.99
+    n_actions: 19
+    max_size: 1000000
+    tau: 0.005
+    batch_size: 256
+    reward_scale: 2
