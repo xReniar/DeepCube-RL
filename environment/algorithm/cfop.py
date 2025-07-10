@@ -23,20 +23,20 @@ class CFOP(Algorithm):
         for face in adjacency.keys():
             if ((faces[face][3] == faces[face][4]) and (faces[adjacency[face][0]][5] == faces["bottom"][4])) or \
                ((faces[face][5] == faces[face][4]) and (faces[adjacency[face][1]][3] == faces["bottom"][4])):
-                cross_status += 10.0
+                cross_status += 2
             else:
                 if face == "front":
-                    cross_status += int((faces[face][1] == faces[face][4]) and (faces["top"][7] == faces["bottom"][4])) * 5.0 + \
-                                    int((faces[face][7] == faces[face][4]) and (faces["bottom"][1] == faces["bottom"][4])) * 25.0
+                    cross_status += int((faces[face][1] == faces[face][4]) and (faces["top"][7] == faces["bottom"][4])) * 1 + \
+                                    int((faces[face][7] == faces[face][4]) and (faces["bottom"][1] == faces["bottom"][4])) * 3
                 elif face == "right":
-                    cross_status += int((faces[face][1] == faces[face][4]) and (faces["top"][5] == faces["bottom"][4])) * 5.0 + \
-                                    int((faces[face][7] == faces[face][4]) and (faces["bottom"][5] == faces["bottom"][4])) * 25.0
+                    cross_status += int((faces[face][1] == faces[face][4]) and (faces["top"][5] == faces["bottom"][4])) * 1 + \
+                                    int((faces[face][7] == faces[face][4]) and (faces["bottom"][5] == faces["bottom"][4])) * 3
                 elif face == "back":
-                    cross_status += int((faces[face][1] == faces[face][4]) and (faces["top"][1] == faces["bottom"][4])) * 5.0 + \
-                                    int((faces[face][7] == faces[face][4]) and (faces["bottom"][7] == faces["bottom"][4])) * 25.0
+                    cross_status += int((faces[face][1] == faces[face][4]) and (faces["top"][1] == faces["bottom"][4])) * 1 + \
+                                    int((faces[face][7] == faces[face][4]) and (faces["bottom"][7] == faces["bottom"][4])) * 3
                 else:
-                    cross_status += int((faces[face][1] == faces[face][4]) and (faces["top"][3] == faces["bottom"][4])) * 5.0 + \
-                                    int((faces[face][7] == faces[face][4]) and (faces["bottom"][3] == faces["bottom"][4])) * 25.0
+                    cross_status += int((faces[face][1] == faces[face][4]) and (faces["top"][3] == faces["bottom"][4])) * 1 + \
+                                    int((faces[face][7] == faces[face][4]) and (faces["bottom"][3] == faces["bottom"][4])) * 3
 
         return cross_status
 
