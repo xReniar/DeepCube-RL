@@ -1,5 +1,5 @@
 from environment import Environment
-from CFOP_agents import A2C, DQN, PPO
+from CFOP_agents import SA2C, DQN, PPO
 import yaml
 from itertools import count
 import torch
@@ -7,7 +7,7 @@ import torch
 
 device = torch.device(
     "cuda" if torch.cuda.is_available() else
-    "mps" if torch.backends.mps.is_available() else
+    "mps" if torch.mps.is_available() else
     "cpu"
 )
 
@@ -16,8 +16,7 @@ def train_DQN(env: Environment, agent: DQN):
         state = env.reset()
 
         current_reward = env.algorithm.status(env.cube)
-        print(episode)
-        for t in range(env.scramble_moves):
+        for t in range(env.scramble_moves * 2):
             action = agent.action(state)
             obs, reward, done = env.step(action.item())
 
@@ -47,7 +46,7 @@ def train_DQN(env: Environment, agent: DQN):
                     f.write(env.start_state)
                 break
 
-def train_A2C(env: Environment, agent: A2C):
+def train_SA2C(env: Environment, agent: SA2C):
     t_so_far = 0
     i_so_far = 0
 
@@ -65,4 +64,4 @@ if __name__ == "__main__":
     )
 
     train_DQN(env, DQN(args["DQN"]))
-    #train_A2C(env, A2C(args["A2C"]))
+    #train_A2C(env, SA2C(args["A2C"]))
