@@ -177,7 +177,11 @@ class SA2C(Agent):
         )
         self.batch_size = int(args["batch_size"])
 
-        self.actor = ActorNet()
+        self.actor = ActorNet(
+            alpha = float(args["alpha"]),
+            input_dims = [54],
+            n_actions = self.n_actions
+        )
 
     
 
