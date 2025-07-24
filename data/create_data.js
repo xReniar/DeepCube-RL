@@ -4,7 +4,7 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function executeRubikMove(page, scramble) {
+async function getSolution(page, scramble) {
     const moveMappings = {
         // Clockwise
         'U': 'uu', 'L': 'll', 'R': 'rr',
@@ -14,17 +14,25 @@ async function executeRubikMove(page, scramble) {
         "D'": 'di', "F'": 'fi', "B'": 'bi',
     };
 
+    // execute scramble to solved cube
     const moves = scramble.trim().split(/\s+/);
     for (const move of moves) {
-        const functionName = moveMappings[move];
         await page.evaluate((fnName) => {
             if (typeof window[fnName] === 'function') {
                 window[fnName]();
                 kiir();
             }
-        }, functionName);
+        }, moveMappings[move]);
         sleep(100);
     }
+
+    // generate solution
+    await page.evaluate(() => {
+        thinkAndSolve();
+    });
+
+    // after solution is generated start reading it
+    await page.waitForSelector('#solutiondisplay', { visible: true });
 }
 
 const moves = ['R', "R'", 'L', "L'", 'U', "U'", 'D', "D'", 'F', "F'", 'B', "B'"];
@@ -52,8 +60,8 @@ await page.goto("https://solverubikscube.com/", { waitUntil: 'domcontentloaded' 
         //console.log(scramble);
         for (const scramble of dataset) {
             console.log(scramble);
-            await executeRubikMove(page, scramble);
-            await sleep(1000);
+            await getSolution(page, scramble);
+            await sleep(2000);
         }
     }).catch((reason) => {
         console.log(reason);
