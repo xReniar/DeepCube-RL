@@ -50,8 +50,8 @@ const moves = ['R', "R'", 'L', "L'", 'U', "U'", 'D', "D'", 'F', "F'", 'B', "B'"]
 const dataset = new Set();
 
 // create random scrambles
-for (let i = 0; i < 100; i++) {
-    const randomSequence = Array.from({ length: 1 }, () => {
+for (let i = 0; i < 10000; i++) {
+    const randomSequence = Array.from({ length: 20 }, () => {
         return moves[Math.floor(Math.random() * moves.length)];
     }).join(' ');
     
@@ -68,7 +68,7 @@ await page.goto("https://solverubikscube.com/", { waitUntil: 'domcontentloaded' 
         let counter = 1;
 
         // new version
-        const concurrency = 4;
+        const concurrency = 16;
         const datasetArray = Array.from(dataset);
         for(let i = 0;i < datasetArray.length; i += concurrency){
             const batch = datasetArray.slice(i, i + concurrency);
