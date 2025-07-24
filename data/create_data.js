@@ -50,8 +50,8 @@ const moves = ['R', "R'", 'L', "L'", 'U', "U'", 'D', "D'", 'F', "F'", 'B', "B'"]
 const dataset = new Set();
 
 // create random scrambles
-for (let i = 0; i < 10000; i++) {
-    const randomSequence = Array.from({ length: 20 }, () => {
+for (let i = 0; i < 100; i++) {
+    const randomSequence = Array.from({ length: 1 }, () => {
         return moves[Math.floor(Math.random() * moves.length)];
     }).join(' ');
     
@@ -64,9 +64,33 @@ const browser = await launch();
 const page = await browser.newPage();
 await page.goto("https://solverubikscube.com/", { waitUntil: 'domcontentloaded' })
     .then(async () => {
-
         const data = {};
         let counter = 1;
+
+        // new version
+        const concurrency = 4;
+        const datasetArray = Array.from(dataset);
+        for(let i = 0;i < datasetArray.length; i += concurrency){
+            const batch = datasetArray.slice(i, i + concurrency);
+
+            const results = await Promise.all(batch.map(async (scramble) => {
+                const newPage = await browser.newPage();
+                await newPage.goto("https://solverubikscube.com/", { waitUntil: 'domcontentloaded' })
+
+                const solution = await getSolution(newPage, scramble);
+                await newPage.close();
+                return { scramble, solution: solution.join(" ") };
+            }));
+
+            for (const result of results) {
+                data[counter] = result;
+                counter++;
+            }
+            sleep(250);
+        }
+
+        // old version
+        /*
         for (const scramble of dataset) {
             const solution = await getSolution(page, scramble);
             console.log("scramble: " + scramble);
@@ -80,6 +104,7 @@ await page.goto("https://solverubikscube.com/", { waitUntil: 'domcontentloaded' 
 
             counter++;
         }
+        */
 
         writeFileSync('data.json', JSON.stringify(data, null, 2));
     }).catch((reason) => {
