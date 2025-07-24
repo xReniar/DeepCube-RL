@@ -1,4 +1,5 @@
 import { launch } from "puppeteer";
+import { writeFileSync } from "fs"
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -32,7 +33,17 @@ async function getSolution(page, scramble) {
     });
 
     // after solution is generated start reading it
-    await page.waitForSelector('#solutiondisplay', { visible: true });
+    const display = await page.waitForSelector('#solutiondisplay', { visible: true });
+    await display.waitForSelector('span');
+    
+    const child = await display.$$("span");
+    const solution = [];
+    for (const span of child) {
+        solution.push(await span.evaluate(el => el.textContent.trim()));
+    }
+    solution.shift()
+
+    return solution;
 }
 
 const moves = ['R', "R'", 'L', "L'", 'U', "U'", 'D', "D'", 'F', "F'", 'B', "B'"];
@@ -48,21 +59,31 @@ for (let i = 0; i < 10000; i++) {
 }
 
 // start browsing
-const browser = await launch({
-    headless: false,
-    defaultViewport: null,
-    args: ['--start-maximized']
-});
+const browser = await launch();
 
 const page = await browser.newPage();
 await page.goto("https://solverubikscube.com/", { waitUntil: 'domcontentloaded' })
     .then(async () => {
-        //console.log(scramble);
+
+        const data = {};
+        let counter = 1;
         for (const scramble of dataset) {
-            console.log(scramble);
-            await getSolution(page, scramble);
-            await sleep(2000);
+            const solution = await getSolution(page, scramble);
+            console.log("scramble: " + scramble);
+            console.log("solution: " + solution);
+            await sleep(500);
+
+            data[counter] = {
+                "scramble": scramble,
+                "solution": solution.join(" ")
+            };
+
+            counter++;
         }
+
+        writeFileSync('data.json', JSON.stringify(data, null, 2));
     }).catch((reason) => {
         console.log(reason);
     });
+
+await browser.close();
