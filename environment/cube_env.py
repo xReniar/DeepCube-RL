@@ -100,7 +100,8 @@ class Environment:
         '''
         Scrambles the cube
         '''
-        self.cube.rotate(' '.join(random.choices(moves, k=self.scramble_moves)))
+        population = moves[1:]
+        self.cube.rotate(' '.join(random.choices(population, k=self.scramble_moves)))
         self.state = self.__state_to_tensor(self.cube.get_kociemba_facelet_positions())
 
     def step(
