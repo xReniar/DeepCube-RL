@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from magiccube import Cube
 import hashlib
 import itertools as it
+from collections import deque
 
 
 def hash5(s: str) -> int:
@@ -10,104 +11,110 @@ def hash5(s: str) -> int:
     h = hashlib.sha256(s.encode()).hexdigest()
     return int(h, 16) % (pow(10, digits))
 
-def draw_labeled_multigraph(G, attr_name, ax=None):
-    connectionstyle = [f"arc3,rad={r}" for r in it.accumulate([0.15] * 4)]
-
-    pos = nx.shell_layout(G)
-
-    nx.draw_networkx_nodes(G, pos, ax=ax)
-    nx.draw_networkx_labels(G, pos, font_size=14, ax=ax)
-    nx.draw_networkx_edges(
-        G, pos, edge_color="grey", connectionstyle=connectionstyle, ax=ax
-    )
-
-    labels = {
-        tuple(edge): f"{attr_name}={attrs[attr_name]}"
-        for *edge, attrs in G.edges(keys=True, data=True)
-    }
-
-    nx.draw_networkx_edge_labels(
-        G,
-        pos,
-        labels,
-        connectionstyle=connectionstyle,
-        label_pos=0.3,
-        font_color="blue",
-        bbox={"alpha": 0},
-        ax=ax,
-    )
-
-def draw_labeled_multigraph2(G, attr_name, ax=None):
+def draw_labeled_multigraph_tree(G, attr_name="m", ax=None, show_labels=False):
     if ax is None:
         ax = plt.gca()
 
-    # Identifica il nodo iniziale (primo stato del cubo)
-    initial_node = next(iter(G.nodes()))  # Prendi il primo nodo aggiunto
+    root = next(iter(G.nodes))
 
-    # Usa spring_layout con un posizionamento fisso per il nodo iniziale
-    pos = nx.spring_layout(G, k=0.3, seed=42, pos={initial_node: (0, 0)}, fixed=[initial_node])
+    levels = {}
+    queue = deque([(root, 0)])
+    visited = set()
+
+    while queue:
+        node, depth = queue.popleft()
+        if node in visited:
+            continue
+        visited.add(node)
+        levels[node] = depth
+        for neighbor in G.successors(node):
+            if neighbor not in visited:
+                queue.append((neighbor, depth + 1))
+
+    pos = {}
+    nodes_by_level = {}
+    for node, level in levels.items():
+        nodes_by_level.setdefault(level, []).append(node)
+
+    for level, nodes in nodes_by_level.items():
+        for i, node in enumerate(nodes):
+            pos[node] = (i - len(nodes) / 2, -level)
 
     nx.draw_networkx_nodes(G, pos, ax=ax, node_size=700)
     nx.draw_networkx_labels(G, pos, font_size=10, ax=ax)
-
-    # Disegna archi con curvature diverse per evitare sovrapposizioni
-    connectionstyle = [f"arc3,rad={r}" for r in it.accumulate([0.15] * len(G.edges()))]
 
     nx.draw_networkx_edges(
         G,
         pos,
         edge_color="grey",
-        connectionstyle=connectionstyle,
         arrows=True,
         arrowstyle="-|>",
         ax=ax,
     )
 
-    # Aggiungi etichette agli archi
-    labels = {
-        tuple(edge): f"{attr_name}={attrs[attr_name]}"
-        for *edge, attrs in G.edges(keys=True, data=True)
-    }
+    if show_labels:
+        labels = {
+            tuple(edge): f"{attr_name}={attrs[attr_name]}"
+            for *edge, attrs in G.edges(keys=True, data=True)
+        }
 
-    nx.draw_networkx_edge_labels(
-        G,
-        pos,
-        labels,
-        connectionstyle=connectionstyle,
-        label_pos=0.3,
-        font_color="blue",
-        bbox={"alpha": 0},
-        ax=ax,
-    )
+        nx.draw_networkx_edge_labels(
+            G,
+            pos,
+            labels,
+            label_pos=0.3,
+            font_color="blue",
+            bbox={"alpha": 0},
+            ax=ax,
+        )
 
+def generate_state_graph(cube: Cube, moves: list, depth: int):
+    G = nx.MultiDiGraph()
+    visited = set()
+
+    start_k_state = cube.get_kociemba_facelet_colors()
+    start_hash = hash5(start_k_state)
+    
+    queue = deque()
+    queue.append((start_hash, start_k_state, 0))
+
+    visited.add(start_hash)
+
+    while queue:
+        current_hash, current_k_state, d = queue.popleft()
+
+        if d >= depth:
+            continue
+
+        for move in moves:
+            cube = Cube(state=current_k_state)
+            cube.rotate(move)
+            new_k_state = cube.get_kociemba_facelet_colors()
+            new_hash = hash5(new_k_state)
+
+            G.add_edge(current_hash, new_hash, m=move)
+
+            inverse_move = move[:-1] if "'" in move else move + "'"
+            G.add_edge(new_hash, current_hash, m=inverse_move)
+
+            if new_hash not in visited:
+                visited.add(new_hash)
+                queue.append((new_hash, new_k_state, d + 1))
+
+    return G
 
 moves = ["U", "D", "F", "R", "B", "L",
          "U'", "D'", "F'", "R'", "B'", "L'"]
 
-G = nx.MultiDiGraph()
-cube = Cube()
+G = generate_state_graph(cube=Cube(), moves=moves, depth=2)
 
-for move in moves:
-    current_k_state = cube.get_kociemba_facelet_positions()
-    current_c_state = cube.get_kociemba_facelet_colors()
-    cube.rotate(move)
+print(len(G.nodes))
+print(len(G.edges))
 
-    new_k_state = cube.get_kociemba_facelet_positions()
-    new_c_state = cube.get_kociemba_facelet_colors()
-
-    inverse_move = None
-    if "'" in move:
-        inverse_move = move[:1]
-    else:
-        inverse_move = f"{move}'"
-
-    G.add_edge(hash5(current_k_state), hash5(new_k_state), m=move)
-    G.add_edge(hash5(new_k_state), hash5(current_k_state), m=inverse_move)
-    
-    cube.rotate(inverse_move)
-
+'''
 fig, ax = plt.subplots(figsize=(6, 5))
-draw_labeled_multigraph2(G, "m", ax)
+draw_labeled_multigraph_tree(G, "m", ax, show_labels=True)
 ax.set_title("Graph")
 plt.tight_layout()
 plt.show()
+'''
