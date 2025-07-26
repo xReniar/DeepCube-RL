@@ -48,6 +48,7 @@ def draw_labeled_multigraph_tree(G, attr_name="m", ax=None, show_labels=False):
         edge_color="grey",
         arrows=True,
         arrowstyle="-|>",
+        arrowsize=20,
         ax=ax,
     )
 
@@ -67,8 +68,67 @@ def draw_labeled_multigraph_tree(G, attr_name="m", ax=None, show_labels=False):
             ax=ax,
         )
 
+def draw_labeled_multigraph_tree2(G, attr_name="m", ax=None, show_labels=False):
+    if ax is None:
+        ax = plt.gca()
+
+    root = next(iter(G.nodes))
+
+    levels = {}
+    queue = deque([(root, 0)])
+    visited = set()
+
+    while queue:
+        node, depth = queue.popleft()
+        if node in visited:
+            continue
+        visited.add(node)
+        levels[node] = depth
+        for neighbor in G.successors(node):
+            if neighbor not in visited:
+                queue.append((neighbor, depth + 1))
+
+    pos = {}
+    nodes_by_level = {}
+    for node, level in levels.items():
+        nodes_by_level.setdefault(level, []).append(node)
+
+    for level, nodes in nodes_by_level.items():
+        for i, node in enumerate(nodes):
+            pos[node] = (i - len(nodes) / 2, -level)
+
+    nx.draw_networkx_nodes(G, pos, ax=ax, node_size=700)
+    nx.draw_networkx_labels(G, pos, font_size=10, ax=ax)
+
+    nx.draw_networkx_edges(
+        G,
+        pos,
+        edge_color="grey",
+        arrows=True,
+        arrowstyle="-|>",
+        arrowsize=20,  # <-- frecce più grandi
+        ax=ax,
+    )
+
+    if show_labels:
+        labels = {
+            (u, v): f"{attr_name}={attrs[attr_name]}"
+            for u, v, attrs in G.edges(data=True)
+        }
+
+        nx.draw_networkx_edge_labels(
+            G,
+            pos,
+            labels,
+            label_pos=0.3,
+            font_color="blue",
+            bbox={"alpha": 0},
+            ax=ax,
+        )
+
+
 def generate_state_graph(cube: Cube, moves: list, depth: int):
-    G = nx.MultiDiGraph()
+    G = nx.DiGraph()
     visited = set()
 
     start_k_state = cube.get_kociemba_facelet_colors()
@@ -107,13 +167,15 @@ moves = ["U", "D", "F", "R", "B", "L",
 
 G = generate_state_graph(cube=Cube(), moves=moves, depth=2)
 
-print(len(G.nodes))
-print(len(G.edges))
 
-'''
+for node in list(G.nodes()):
+    succ = len(list(G.successors(node)))
+    prec = len(list(G.predecessors(node)))
+
+    print(node, succ, prec)
+
 fig, ax = plt.subplots(figsize=(6, 5))
-draw_labeled_multigraph_tree(G, "m", ax, show_labels=True)
+draw_labeled_multigraph_tree2(G, "m", ax, show_labels=True)
 ax.set_title("Graph")
 plt.tight_layout()
 plt.show()
-'''
