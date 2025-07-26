@@ -146,14 +146,14 @@ def generate_state_graph(cube: Cube, moves: list, depth: int):
             continue
 
         for move in moves:
-            cube = Cube(state=current_k_state)
-            cube.rotate(move)
-            new_k_state = cube.get_kociemba_facelet_colors()
+            child_cube = Cube(state=current_k_state)
+            child_cube.rotate(move)
+            new_k_state = child_cube.get_kociemba_facelet_colors()
             new_hash = hash5(new_k_state)
 
             G.add_edge(current_hash, new_hash, m=move)
 
-            inverse_move = move[:-1] if "'" in move else move + "'"
+            inverse_move = move[:-1] if "'" in move else f"{move}'"
             G.add_edge(new_hash, current_hash, m=inverse_move)
 
             if new_hash not in visited:
@@ -165,17 +165,21 @@ def generate_state_graph(cube: Cube, moves: list, depth: int):
 moves = ["U", "D", "F", "R", "B", "L",
          "U'", "D'", "F'", "R'", "B'", "L'"]
 
-G = generate_state_graph(cube=Cube(), moves=moves, depth=2)
+G = generate_state_graph(cube=Cube(), moves=moves, depth=1)
 
 
+import time
 for node in list(G.nodes()):
     succ = len(list(G.successors(node)))
     prec = len(list(G.predecessors(node)))
 
-    print(node, succ, prec)
+    if not(succ == 1 and prec == succ):
+        print(node, succ, prec)
 
+'''
 fig, ax = plt.subplots(figsize=(6, 5))
 draw_labeled_multigraph_tree2(G, "m", ax, show_labels=True)
 ax.set_title("Graph")
 plt.tight_layout()
 plt.show()
+'''
