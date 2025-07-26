@@ -2,7 +2,6 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from magiccube import Cube
 import hashlib
-import itertools as it
 from collections import deque
 
 
