@@ -1,4 +1,4 @@
-from .algorithm import Algorithm, init_algo
+from ..algorithm import Algorithm, init_algo
 from magiccube import Cube
 from .dummy_cube import DummyCube
 import random
