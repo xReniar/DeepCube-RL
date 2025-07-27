@@ -48,15 +48,14 @@ def _neighbors(
 
     return G
 
-def generate_neighbors(cube: Cube, depth: int):
+def generate_neighbors(kociemba_state: str, depth: int):
     G = nx.DiGraph()
-    visited = set()
+    cube = Cube(state=convert_to_color(kociemba_state))
 
     start_k_state = cube.get_kociemba_facelet_positions()
 
     queue = deque()
     queue.append((start_k_state, 0))
-    visited.add(start_k_state)
 
     while queue:
         current_k_state, d = queue.popleft()
@@ -67,9 +66,7 @@ def generate_neighbors(cube: Cube, depth: int):
         neighbors = _neighbors(cube = Cube(state=convert_to_color(current_k_state)))
 
         for node in neighbors.nodes():
-            if node not in visited:
-                visited.add(node)
-                queue.append((node, d + 1))
+            queue.append((node, d + 1))
         G = nx.compose(G, neighbors)
 
     return G
