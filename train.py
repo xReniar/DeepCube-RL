@@ -1,5 +1,5 @@
 from environment import Environment
-from CFOP_agents import SA2C, DQN, PPO
+from agents import SA2C, DQN, PPO
 import yaml
 from itertools import count
 import torch
