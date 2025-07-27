@@ -1,6 +1,9 @@
 import networkx as nx
 from magiccube import Cube
 from collections import deque
+from torch_geometric.data import Data
+from torch_geometric.utils import from_networkx
+from .algorithm import init_algo
 
 
 moves = ["U", "D", "F", "R", "B", "L",
@@ -35,12 +38,18 @@ def _neighbors(
     global moves
     G = nx.DiGraph()
 
+    algo = init_algo("LBL")
+
     for move in moves:
         current_k_state = cube.get_kociemba_facelet_positions()
+        current_reward = algo.status(cube)
         cube.rotate(move)
         new_k_state = cube.get_kociemba_facelet_positions()
+        new_reward = algo.status(cube)
         inverse_move = move[:1] if "'" in move else f"{move}'"
 
+        G.add_node(current_k_state, reward=current_reward)
+        G.add_node(new_k_state, reward=new_reward)
         G.add_edge(current_k_state, new_k_state, m=move)
         #G.add_edge(new_k_state, current_k_state, m=inverse_move)
         
@@ -70,3 +79,9 @@ def generate_neighbors(kociemba_state: str, depth: int):
         G = nx.compose(G, neighbors)
 
     return G
+
+c = Cube()
+G = generate_neighbors(c.get_kociemba_facelet_positions(), depth=3)
+#data = from_networkx(G)
+
+print(len(list(G.nodes(data=True))))
