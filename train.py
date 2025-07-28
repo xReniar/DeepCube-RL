@@ -1,4 +1,4 @@
-from environment import Environment
+from environment import Environment, generate_neighbors
 from agents import SA2C, DQN, PPO
 import yaml
 from itertools import count
