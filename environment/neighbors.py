@@ -40,9 +40,9 @@ def _neighbors(
 
     algo = init_algo("LBL")
 
+    current_k_state = cube.get_kociemba_facelet_positions()
+    current_reward = algo.status(cube)
     for move in moves:
-        current_k_state = cube.get_kociemba_facelet_positions()
-        current_reward = algo.status(cube)
         cube.rotate(move)
         new_k_state = cube.get_kociemba_facelet_positions()
         new_reward = algo.status(cube)
@@ -79,9 +79,3 @@ def generate_neighbors(kociemba_state: str, depth: int):
         G = nx.compose(G, neighbors)
 
     return G
-
-c = Cube()
-G = generate_neighbors(c.get_kociemba_facelet_positions(), depth=3)
-#data = from_networkx(G)
-
-print(len(list(G.nodes(data=True))))
