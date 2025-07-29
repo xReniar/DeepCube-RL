@@ -20,5 +20,5 @@ for element in data.keys():
     formatted_solution = {}
     
     for rotation in solution.split():
-        print(cube.get_kociemba_facelet_positions())
         cube.rotate(rotation)
+        print(cube)
