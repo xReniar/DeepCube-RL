@@ -1,0 +1,14 @@
+{
+  "name": "deepcube-rl",
+  "version": "1.0.0",
+  "description": "This project aims to train a neural network to learn how to solve the rubik's cube using the Fridrich Method (also known as CFOP) and other techniques.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "puppeteer": "^24.15.0"
+  }
+}
