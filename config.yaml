@@ -4,13 +4,13 @@ environment:
 DQN:
     mem_capacity: 100000
     gamma: 0.4
-    batch_size: 2048
+    batch_size: 4096
     eps_start: 0.9
     eps_end: 0.01
     eps_decay: 5000
     tau: 0.005
     lr: 3e-5
-    n_actions: 19
+    n_actions: 13
     num_episodes: 10000
 
 SA2C:
