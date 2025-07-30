@@ -57,7 +57,7 @@ if __name__ == "__main__":
     args = yaml.safe_load(open("config.yaml", "r"))
 
     env = Environment(
-        method="CFOP",
+        method="LBL",
         size=3,
         device=device,
         args=args
