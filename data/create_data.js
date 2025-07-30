@@ -61,54 +61,32 @@ for (let i = 0; i < 10000; i++) {
 // start browsing
 const browser = await launch();
 
-const page = await browser.newPage();
-await page.goto("https://solverubikscube.com/", { waitUntil: 'domcontentloaded' })
-    .then(async () => {
-        const data = {};
-        let counter = 1;
+(async () => {
+    const data = {};
+    let counter = 1;
 
-        // new version
-        const concurrency = 16;
-        const datasetArray = Array.from(dataset);
-        for(let i = 0;i < datasetArray.length; i += concurrency){
-            const batch = datasetArray.slice(i, i + concurrency);
+    // new version
+    const concurrency = 16;
+    const datasetArray = Array.from(dataset);
+    for(let i = 0;i < datasetArray.length; i += concurrency){
+        const batch = datasetArray.slice(i, i + concurrency);
 
-            const results = await Promise.all(batch.map(async (scramble) => {
-                const newPage = await browser.newPage();
-                await newPage.goto("https://solverubikscube.com/", { waitUntil: 'domcontentloaded' })
+        const results = await Promise.all(batch.map(async (scramble) => {
+            const newPage = await browser.newPage();
+            await newPage.goto("https://solverubikscube.com/", { waitUntil: 'domcontentloaded' })
 
-                const solution = await getSolution(newPage, scramble);
-                await newPage.close();
-                return { scramble, solution: solution.join(" ") };
-            }));
+            const solution = await getSolution(newPage, scramble);
+            await newPage.close();
+            return { scramble, solution: solution.join(" ") };
+        }));
 
-            for (const result of results) {
-                data[counter] = result;
-                counter++;
-            }
-            sleep(250);
-        }
-
-        // old version
-        /*
-        for (const scramble of dataset) {
-            const solution = await getSolution(page, scramble);
-            console.log("scramble: " + scramble);
-            console.log("solution: " + solution);
-            await sleep(500);
-
-            data[counter] = {
-                "scramble": scramble,
-                "solution": solution.join(" ")
-            };
-
+        for (const result of results) {
+            data[counter] = result;
             counter++;
         }
-        */
+        sleep(250);
+    }
 
-        writeFileSync('data.json', JSON.stringify(data, null, 2));
-    }).catch((reason) => {
-        console.log(reason);
-    });
-
-await browser.close();
+    writeFileSync('data.json', JSON.stringify(data, null, 2));
+    await browser.close();
+})();
