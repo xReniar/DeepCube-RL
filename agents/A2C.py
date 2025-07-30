@@ -72,8 +72,8 @@ class A2C(Agent):
     def optimize(self):
         self.actor_optim.zero_grad()
         self.critic_optim.zero_grad()
-        actor_loss.backward()
-        critic_loss.backward()
+        #actor_loss.backward()
+        #critic_loss.backward()
         self.actor_optim.step()
         self.critic_optim.step()
     
