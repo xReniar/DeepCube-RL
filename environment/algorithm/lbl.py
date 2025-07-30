@@ -37,7 +37,10 @@ class LBL(Algorithm):
                 else:
                     cross_status += int((faces[face][1] == faces[face][4]) and (faces["top"][3] == faces["bottom"][4])) * 1 + \
                                     int((faces[face][7] == faces[face][4]) and (faces["bottom"][3] == faces["bottom"][4])) * 3
-
+                    
+        if cross_status == 12:
+            cross_status = 100
+        
         return cross_status
 
     def first_layer(self, cube: Cube) -> int:
