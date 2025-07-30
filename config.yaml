@@ -13,12 +13,5 @@ DQN:
     n_actions: 13
     num_episodes: 10000
 
-SA2C:
-    alpha: 0.0003
-    beta: 0.0003
-    gamma: 0.99
-    n_actions: 19
-    max_size: 1000000
-    tau: 0.005
-    batch_size: 256
-    reward_scale: 2
+A2C:
+    num_episodes: 10000
