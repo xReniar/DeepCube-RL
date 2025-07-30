@@ -50,9 +50,9 @@ class A2C(Agent):
         super().__init__(args)
         self.num_episodes = int(args["num_episodes"])
 
-        self.actor_net = Actor(54, 128, 12)
+        self.actor_net = Actor(54, 128, 12).to(self.device)
         self.actor_optim = optim.Adam(self.actor_net.parameters())
-        self.critic_net = Critic(54, 128)
+        self.critic_net = Critic(54, 128).to(self.device)
         self.critic_optim = optim.Adam(self.critic_net.parameters())
 
     def compute_returns(
