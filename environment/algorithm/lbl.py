@@ -40,6 +40,8 @@ class LBL(Algorithm):
                     
         if cross_status == 12:
             cross_status = 100
+        if cross_status == 0:
+            cross_status = -1
         
         return cross_status
 
