@@ -1,5 +1,6 @@
 environment:
     scramble_moves: 10
+    depth: 1
 
 DQN:
     mem_capacity: 100000
@@ -10,7 +11,7 @@ DQN:
     eps_decay: 5000
     tau: 0.005
     lr: 3e-5
-    n_actions: 13
+    n_actions: 12
     num_episodes: 10000
 
 A2C:
