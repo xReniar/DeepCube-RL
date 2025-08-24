@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch_geometric.nn import GCNConv
+from torch_geometric.data import Batch
 from torch import optim
 from .agent import Agent
 from collections import namedtuple, deque
@@ -17,23 +19,28 @@ class DeepQNet(nn.Module):
     ) -> None:
         super().__init__()
 
-        self.fc1 = nn.Linear(input_dim, hidden_dim)
-        self.fc2 = nn.Linear(hidden_dim, hidden_dim)
-        self.fc3 = nn.Linear(hidden_dim, hidden_dim)
-        self.fc4 = nn.Linear(hidden_dim, hidden_dim)
-        self.fc5 = nn.Linear(hidden_dim, hidden_dim)
-        self.fc6 = nn.Linear(hidden_dim, hidden_dim)
-        self.fc7 = nn.Linear(hidden_dim, output_dim)
+        self.conv1 = GCNConv(in_channels=input_dim, out_channels=hidden_dim)
+        self.conv2 = GCNConv(in_channels=hidden_dim, out_channels=hidden_dim)
 
-    def forward(self, x: torch.Tensor):
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = F.relu(self.fc3(x))
-        x = F.relu(self.fc4(x))
-        x = F.relu(self.fc5(x))
-        x = F.relu(self.fc6(x))
-        x = self.fc7(x)
-        return x
+        # Testa finale: Q-values per le 12 mosse
+        self.head = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, output_dim)
+        )
+
+    def forward(self, data):
+        x, edge_index = data.x, data.edge_index
+
+        x = F.relu(self.conv1(x, edge_index))
+        x = F.relu(self.conv2(x, edge_index))
+
+        root_index = 0
+        root_feat = x[root_index]
+
+        q_values = self.head(root_feat)
+        return q_values
+
 
 Transition = namedtuple('Transition',
                         ('state', 'action', 'next_state', 'reward'))
@@ -65,8 +72,8 @@ class DQN(Agent):
         self.n_actions: int = int(args["n_actions"])
         self.num_episodes: int = int(args["num_episodes"])
 
-        self.policy_net = DeepQNet(54, 1024, self.n_actions).to(self.device)
-        self.target_net = DeepQNet(54, 1024, self.n_actions).to(self.device)
+        self.policy_net = DeepQNet(1, 64, self.n_actions).to(self.device)
+        self.target_net = DeepQNet(1, 64, self.n_actions).to(self.device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         
         self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=self.lr, amsgrad=True)
@@ -80,29 +87,28 @@ class DQN(Agent):
         batch = Transition(*zip(*transitions))
 
         non_final_mask = torch.tensor(tuple(map(lambda s: s is not None,
-                                          batch.next_state)), device=self.device, dtype=torch.bool)
-        non_final_next_states = torch.cat([s for s in batch.next_state
-                                                    if s is not None])
-        
-        state_batch = torch.cat(batch.state)
-        action_batch = torch.cat(batch.action)
-        reward_batch = torch.cat(batch.reward)
+                                        batch.next_state)), device=self.device, dtype=torch.bool)
+
+        non_final_next_states = [s for s in batch.next_state if s is not None]
+        non_final_next_states_batch = Batch.from_data_list(non_final_next_states).to(self.device)
+
+        state_batch = Batch.from_data_list(batch.state).to(self.device)
+        action_batch = torch.cat(batch.action).to(self.device)
+        reward_batch = torch.cat(batch.reward).to(self.device)
 
         state_action_values = self.policy_net(state_batch).gather(1, action_batch)
 
         next_state_values = torch.zeros(self.batch_size, device=self.device)
         with torch.no_grad():
-            next_state_values[non_final_mask] = self.target_net(non_final_next_states).max(1).values
-        # Compute the expected Q values
+            next_state_values[non_final_mask] = self.target_net(non_final_next_states_batch).max(1).values
+
         expected_state_action_values = (next_state_values * self.gamma) + reward_batch
 
         criterion = nn.SmoothL1Loss()
         loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1))
 
-        # Optimize the model
         self.optimizer.zero_grad()
         loss.backward()
-        # In-place gradient clipping
         torch.nn.utils.clip_grad_value_(self.policy_net.parameters(), 100)
         self.optimizer.step()
 
@@ -115,9 +121,11 @@ class DQN(Agent):
 
         if sample > eps_threshold:
             with torch.no_grad():
-                return self.policy_net.forward(state).max(1).indices.view(1, 1)
+                result = self.policy_net.forward(state).argmax().unsqueeze(0)
+                return result
         else:
-            return torch.tensor(
-                data=[[random.randint(0, self.n_actions - 1)]],
+            result = torch.tensor(
+                data=[random.randint(0, self.n_actions - 1)],
                 device=self.device
             )
+            return result
