@@ -1,4 +1,5 @@
 from .algorithm import Algorithm, init_algo
+from .graph import generate_graph
 from magiccube import Cube
 from .dummy_cube import DummyCube
 import random
@@ -35,10 +36,12 @@ class Environment:
         self.algorithm: Algorithm = init_algo(method)
         self.device = device
         self.scramble_moves = int(args["scramble_moves"])
+        self.depth = int(args["depth"])
         
         self.scramble() # to start with a scrambled cube
-        self.start_state: torch.Tensor = self.__state_to_tensor(self.cube.get_kociemba_facelet_positions())
-        self.state: torch.Tensor = self.start_state
+        #self.start_state = self.__state_to_tensor(self.cube.get_kociemba_facelet_positions())
+        self.start_state = generate_graph(self.cube.get_kociemba_facelet_positions(), self.depth)
+        self.state = self.start_state
 
     def __state_to_tensor(self, state: str) -> torch.Tensor:
         '''
@@ -102,7 +105,7 @@ class Environment:
         '''
         population = moves[1:]
         self.cube.rotate(' '.join(random.choices(population, k=self.scramble_moves)))
-        self.state = self.__state_to_tensor(self.cube.get_kociemba_facelet_positions())
+        self.state = generate_graph(self.cube.get_kociemba_facelet_positions(), self.depth)
 
     def step(
         self,
@@ -114,7 +117,8 @@ class Environment:
             self.cube.rotate(move)
 
         # update state
-        self.state = self.__state_to_tensor(self.cube.get_kociemba_facelet_positions())
+        #self.state = self.__state_to_tensor(self.cube.get_kociemba_facelet_positions())
+        self.state = generate_graph(self.cube.get_kociemba_facelet_positions(), self.depth)
 
         # calculate reward
         reward = self.algorithm.status(self.cube)
