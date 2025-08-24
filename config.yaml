@@ -13,6 +13,11 @@ DQN:
     n_actions: 13
     num_episodes: 10000
 
+PPO:
+    total_timesteps: 10
+    timesteps_per_batch: 4800
+    max_timesteps_per_episode: 1600
+
 SA2C:
     alpha: 0.0003
     beta: 0.0003
