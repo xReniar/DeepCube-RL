@@ -1,4 +1,4 @@
-from environment import Environment, generate_neighbors
+from environment import Environment
 from agents import A2C, DQN, PPO
 import yaml
 from itertools import count
@@ -21,6 +21,7 @@ def train_DQN(env: Environment, agent: DQN):
             obs, reward, done = env.step(action.item())
 
             current_reward = reward
+            print(current_reward)
 
             torch_current_reward = torch.tensor([current_reward], device=device)
 
@@ -107,5 +108,5 @@ if __name__ == "__main__":
         args=args
     )
 
-    #train_DQN(env, DQN(args["DQN"]))
-    train_A2C(env, A2C(args["A2C"]))
+    train_DQN(env, DQN(args["DQN"]))
+    #train_A2C(env, A2C(args["A2C"]))
