@@ -28,15 +28,18 @@ class DeepQNet(nn.Module):
         output_dim: int
     ) -> None:
         super().__init__()
-
-        self.fc1 = nn.Linear(input_dim, hidden_dim)
-        self.fc2 = nn.Linear(hidden_dim, hidden_dim)
-        self.fc3 = nn.Linear(hidden_dim, output_dim)
+        self.layers = nn.ModuleList()
+        self.layers.append(nn.Linear(input_dim, hidden_dim))
+        for i in range(1, 5):
+            self.layers.append(nn.Linear(hidden_dim, hidden_dim))
+        self.head = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x) -> torch.Tensor:
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        return self.fc3(x)
+        for layer in self.layers:
+            x = F.relu(layer(x))
+        
+        x = self.head(x)
+        return x
 
 
 Transition = namedtuple('Transition',
@@ -72,8 +75,8 @@ class DQN(Agent):
         self.lr: float = float(args["lr"])
         self.num_episodes: int = int(args["num_episodes"])
 
-        self.policy_net = DeepQNet(54, 64, self.env.action_space.shape[0]).to(self.device)
-        self.target_net = DeepQNet(54, 64, self.env.action_space.shape[0]).to(self.device)
+        self.policy_net = DeepQNet(54, 512, self.env.action_space.shape[0]).to(self.device)
+        self.target_net = DeepQNet(54, 512, self.env.action_space.shape[0]).to(self.device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         
         self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=self.lr, amsgrad=True)
@@ -133,6 +136,7 @@ class DQN(Agent):
         
     def train(self) -> None:
         for _ in range(self.num_episodes):
+            rewards = {}
             state = self.env.reset()
 
             current_reward = self.env.algorithm.status(self.env.cube)
@@ -140,6 +144,12 @@ class DQN(Agent):
                 action: torch.Tensor = self.action(state)
                 move: str = self.action_to_move(action.item())
                 obs, reward, done = self.env.step(move)
+
+                if reward not in rewards:
+                    rewards[reward] = 1
+                else:
+                    rewards[reward] += 1
+                print(rewards)
 
                 current_reward = reward
                 torch_current_reward = torch.tensor([current_reward], device=self.device)
@@ -149,7 +159,12 @@ class DQN(Agent):
                 else:
                     next_state = obs
                 
-                self.memory.push(self.state_to_tensor(state), action, self.state_to_tensor(next_state), torch_current_reward)
+                self.memory.push(
+                    self.state_to_tensor(state),
+                    action,
+                    self.state_to_tensor(next_state) if next_state is not None else self.state_to_tensor(next_state),
+                    torch_current_reward
+                )
                 state = next_state
 
                 self.optimize()
@@ -161,8 +176,6 @@ class DQN(Agent):
                 self.target_net.load_state_dict(target_net_state_dict)
 
                 if done:
-                    self.episode_durations.append(t + 1)
-                    self.plot_durations(show_result=True)
                     break
 
 
