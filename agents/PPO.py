@@ -36,16 +36,14 @@ class PPO(Agent):
         self.max_timesteps_per_episode = int(args["max_timesteps_per_episode"])
 
         # environment info
-        self.env = env
         self.obs_dim = 54
-        self.act_dim = 12
 
         # initialize actor and critic networks
-        self.actor = Network(self.obs_dim, 64, self.act_dim)
+        self.actor = Network(self.obs_dim, 64, self.env.action_space.shape[0])
         self.critic = Network(self.obs_dim, 1)
 
         # covariance matrice for get_action
-        self.cov_var = torch.full(size=(self.act_dim,), fill_value=0.5)
+        self.cov_var = torch.full(size=(self.self.env.action_space.shape,), fill_value=0.5)
         self.cov_mat = torch.diag(self.cov_var)
 
     def learn(self) -> None:
@@ -59,7 +57,7 @@ class PPO(Agent):
 
             for ep_t in range(self.max_timesteps_per_episode):
                 t += 1
-                batch_obs.append()
+                #batch_obs.append()
 
     def rollout(self):
         # Batch data
