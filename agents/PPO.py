@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from .agent import Agent
+from environment import Environment
 
 
 class Network(nn.Module):
@@ -25,12 +26,14 @@ class Network(nn.Module):
         x = self.fc3(x)
 
         return x
-        
-
 
 class PPO(Agent):
-    def __init__(self, args, env):
-        super().__init__(args)
+    def __init__(
+        self,
+        env: Environment,
+        args: dict
+    ) -> None:
+        super().__init__(env, args)
         self.total_timesteps = int(args["total_timesteps"])
         self.timesteps_per_batch = int(args["timesteps_per_batch"])
         self.max_timesteps_per_episode = int(args["max_timesteps_per_episode"])
@@ -46,7 +49,7 @@ class PPO(Agent):
         self.cov_var = torch.full(size=(self.self.env.action_space.shape,), fill_value=0.5)
         self.cov_mat = torch.diag(self.cov_var)
 
-    def learn(self) -> None:
+    def train(self) -> None:
         t = 0
 
         while t < self.total_timesteps:

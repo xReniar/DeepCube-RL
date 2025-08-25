@@ -4,6 +4,8 @@ import torch.nn.functional as F
 from torch import optim
 from .agent import Agent
 from collections import namedtuple, deque
+from itertools import count
+from environment import Environment
 import random
 import math
 
@@ -47,7 +49,7 @@ class ReplayMemory(object):
 class DQN(Agent):
     def __init__(
         self,
-        env: object,
+        env: Environment,
         args: dict
     ) -> None:
         super().__init__(env, args)
@@ -123,7 +125,7 @@ class DQN(Agent):
             state = self.env.reset()
 
             current_reward = self.env.algorithm.status(self.env.cube)
-            for t in range(self.env.scramble_moves * 2):
+            for t in count():
                 action = self.action(state)
                 obs, reward, done = self.env.step(action.item())
 
@@ -145,3 +147,6 @@ class DQN(Agent):
                 for key in policy_net_state_dict:
                     target_net_state_dict[key] = policy_net_state_dict[key]*self.tau + target_net_state_dict[key]*(1-self.tau)
                 self.target_net.load_state_dict(target_net_state_dict)
+
+                if done:
+                    break
