@@ -7,6 +7,7 @@ from collections import namedtuple, deque
 from itertools import count
 from environment import Environment
 import random
+import numpy as np
 import math
 
 
@@ -24,10 +25,9 @@ class DeepQNet(nn.Module):
         self.fc3 = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x) -> torch.Tensor:
-        self.fc1 = F.relu(self.fc1(x))
-        self.fc2 = F.relu(self.fc2(x))
-        x = self.fc3(x)
-        return x
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        return self.fc3(x)
 
 
 Transition = namedtuple('Transition',
@@ -63,8 +63,8 @@ class DQN(Agent):
         self.lr: float = float(args["lr"])
         self.num_episodes: int = int(args["num_episodes"])
 
-        self.policy_net = DeepQNet(1, 64, self.env.action_space.shape[0]).to(self.device)
-        self.target_net = DeepQNet(1, 64, self.env.action_space.shape[0]).to(self.device)
+        self.policy_net = DeepQNet(54, 64, self.env.action_space.shape[0]).to(self.device)
+        self.target_net = DeepQNet(54, 64, self.env.action_space.shape[0]).to(self.device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         
         self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=self.lr, amsgrad=True)
@@ -102,32 +102,33 @@ class DQN(Agent):
         torch.nn.utils.clip_grad_value_(self.policy_net.parameters(), 100)
         self.optimizer.step()
 
-
-    def action(self, state: torch.Tensor) -> torch.Tensor:
+    def action(self, state: np.ndarray) -> torch.Tensor:
         sample = random.random()
         eps_threshold = self.eps_end + (self.eps_start - self.eps_end) * \
             math.exp(-1. * self.steps / self.eps_decay)
         self.steps += 1
 
+        result = None
         if sample > eps_threshold:
+            state = self.state_to_tensor(state)
             with torch.no_grad():
                 result = self.policy_net.forward(state).argmax().unsqueeze(0)
-                return result
         else:
             result = torch.tensor(
                 data=[random.randint(0, self.env.action_space.shape[0] - 1)],
                 device=self.device
             )
-            return result
+        return result.unsqueeze(0)
         
     def train(self) -> None:
-        for episode in range(self.num_episodes):
+        for _ in range(self.num_episodes):
             state = self.env.reset()
 
             current_reward = self.env.algorithm.status(self.env.cube)
             for t in count():
-                action = self.action(state)
-                obs, reward, done = self.env.step(action.item())
+                action: torch.Tensor = self.action(state)
+                move: str = self.action_to_move(action.item())
+                obs, reward, done = self.env.step(move)
 
                 current_reward = reward
                 torch_current_reward = torch.tensor([current_reward], device=self.device)
@@ -137,7 +138,7 @@ class DQN(Agent):
                 else:
                     next_state = obs
                 
-                self.memory.push(state, action, next_state, torch_current_reward)
+                self.memory.push(self.state_to_tensor(state), action, self.state_to_tensor(next_state), torch_current_reward)
                 state = next_state
 
                 self.optimize()
