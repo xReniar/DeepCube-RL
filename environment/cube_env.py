@@ -1,83 +1,49 @@
 from .algorithm import Algorithm, init_algo
-from .graph import generate_graph
 from magiccube import Cube
 from .dummy_cube import DummyCube
+import numpy as np
 import random
-import torch
 
-
-moves = [
-    "#",
-    "U", "U'",
-    "D", "D'",
-    "F", "F'",
-    "R", "R'",
-    "B", "B'",
-    "L", "L'"
-]
-color = {
-    "U": 0,"D": 1,"F": 2,
-    "R": 3,"B": 4,"L": 5,
-    ".": 7
-}
 
 class Environment:
     def __init__(
         self,
         method: str,
         size: int,
-        device: str,
         args: dict
     ) -> None:
         args = args["environment"]
-        
-        #self.cube = DummyCube()
+        self._scramble_moves = int(args["scramble_moves"])
         self.cube = Cube(size=size)
-        self.algorithm: Algorithm = init_algo(method)
-        self.device = device
-        self.scramble_moves = int(args["scramble_moves"])
-        self.depth = int(args["depth"])
+        self._algorithm: Algorithm = init_algo(method)
+
+        self._colors_to_positions = {"U": "W", "D": "Y", "F": "G", "R": "R", "B": "B", "L": "O"}
+        self.action_space = np.array([
+            "U", "D", "F", "R", "B", "L",
+            "U'", "D'", "F'", "R'", "B'", "L'"
+        ])
         
-        self.scramble() # to start with a scrambled cube
-        #self.start_state = self.__state_to_tensor(self.cube.get_kociemba_facelet_positions())
-        self.start_state = generate_graph(self.cube.get_kociemba_facelet_positions(), self.depth)
-        self.state = self.start_state
+        self.scramble() # start with a scrambled cube
+        self._start_state = np.array(list(self.cube.get_kociemba_facelet_positions()))
+        self.state = self._start_state
 
-    def __state_to_tensor(self, state: str) -> torch.Tensor:
-        '''
-        state_for_tensor = []
-        for s in state:
-            state_for_tensor.append(color[s])
-        '''
-        faces = []
-
-
-        for i in range(0, 6):
-            faces.append(state[9*i: 9 + 9*i])
-
-        top = faces[0]
-        bottom = faces[3]
-        front = faces[2]
-        right = faces[1]
-        back = faces[5]
-        left = faces[4]
-        state_for_tensor = []
-
-        for i in range(9):
-            state_for_tensor.append(color[top[i]])
-            state_for_tensor.append(color[front[i]])
-            state_for_tensor.append(color[right[i]])
-            state_for_tensor.append(color[back[i]])
-            state_for_tensor.append(color[left[i]])
-            state_for_tensor.append(color[bottom[i]])
-
-        return torch.tensor(state_for_tensor, device=self.device, dtype=torch.float).unsqueeze(0)
-
-    def reset(self) -> torch.Tensor:
+    def reset(self) -> np.ndarray:
         '''
         Reset the environment to get the first observation
         '''
-        self.state = self.start_state
+        self.state = self._start_state
+        positions = "".join(self.state)
+        faces = []
+        for i in range(0, 6):
+            faces.append(positions[9*i: 9 + 9*i])
+
+        top = "".join([self._colors_to_positions[face] for face in faces[0]])
+        right = "".join([self._colors_to_positions[face] for face in faces[1]])
+        front = "".join([self._colors_to_positions[face] for face in faces[2]])
+        bottom = "".join([self._colors_to_positions[face] for face in faces[3]])
+        left = "".join([self._colors_to_positions[face] for face in faces[4]])
+        back = "".join([self._colors_to_positions[face] for face in faces[5]])
+        self.cube = Cube(state=f"{top}{left}{front}{right}{back}{bottom}")
         return self.state
     
     def is_terminated(self) -> bool:
@@ -96,31 +62,30 @@ class Environment:
         left = all([face == "L" for face in faces[4]])
         back = all([face == "B" for face in faces[5]])
 
-        return self.algorithm.status(self.cube) == 12
+        return self._algorithm.status(self.cube) == 12
         #return top and right and front and bottom and left and back
     
     def scramble(self) -> None:
         '''
         Scrambles the cube
         '''
-        population = moves[1:]
-        self.cube.rotate(' '.join(random.choices(population, k=self.scramble_moves)))
-        self.state = generate_graph(self.cube.get_kociemba_facelet_positions(), self.depth)
+        self.cube.rotate(' '.join(random.choices(self.action_space, k=self._scramble_moves)))
+        self.state = np.array(list(self.cube.get_kociemba_facelet_positions()))
 
     def step(
         self,
-        move_id: int
+        action: str
     ) -> tuple:
         # makes action
-        move = moves[move_id]
-        if move != "#":
-            self.cube.rotate(move)
+        if action not in self.action_space:
+            raise ValueError(f"Unrecognized '{action}' move")
+        
+        self.cube.rotate(action) # questo potrebbe non essere aggiornato come self.state
 
         # update state
-        #self.state = self.__state_to_tensor(self.cube.get_kociemba_facelet_positions())
-        self.state = generate_graph(self.cube.get_kociemba_facelet_positions(), self.depth)
+        self.state = self.cube.get_kociemba_facelet_positions()
 
         # calculate reward
-        reward = self.algorithm.status(self.cube)
+        reward = self._algorithm.status(self.cube)
 
         return (self.state, reward, self.is_terminated())
