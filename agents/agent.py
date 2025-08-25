@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
+from environment import Environment
 import torch
 
 
 class Agent(ABC):
     def __init__(
         self,
-        env: object,
+        env: Environment,
         args: dict
     ) -> None:
         super().__init__()
