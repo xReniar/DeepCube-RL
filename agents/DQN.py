@@ -9,6 +9,15 @@ from environment import Environment
 import random
 import numpy as np
 import math
+import matplotlib
+import matplotlib.pyplot as plt
+
+
+is_ipython = 'inline' in matplotlib.get_backend()
+if is_ipython:
+    from IPython import display
+
+plt.ion()
 
 
 class DeepQNet(nn.Module):
@@ -70,6 +79,8 @@ class DQN(Agent):
         self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=self.lr, amsgrad=True)
         self.criterion = nn.SmoothL1Loss()
         self.memory = ReplayMemory(int(args["mem_capacity"]))
+
+        self.episode_durations = []
 
     def optimize(self):
         if len(self.memory) < self.batch_size:
@@ -150,4 +161,32 @@ class DQN(Agent):
                 self.target_net.load_state_dict(target_net_state_dict)
 
                 if done:
+                    self.episode_durations.append(t + 1)
+                    self.plot_durations(show_result=True)
                     break
+
+
+    def plot_durations(self, show_result=False):
+        durations_t = torch.tensor(self.episode_durations, dtype=torch.float)
+        if show_result:
+            plt.title('Result')
+        else:
+            plt.clf()
+            plt.title('Training...')
+        plt.xlabel('Episode')
+        plt.ylabel('Duration')
+        plt.plot(durations_t.numpy())
+        # Take 100 episode averages and plot them too
+        if len(durations_t) >= 100:
+            means = durations_t.unfold(0, 100, 1).mean(1).view(-1)
+            means = torch.cat((torch.zeros(99), means))
+            plt.plot(means.numpy())
+
+        plt.pause(0.001)  # pause a bit so that plots are updated
+        if is_ipython:
+            if not show_result:
+                display.display(plt.gcf())
+                display.clear_output(wait=True)
+            else:
+                display.display(plt.gcf())
+        print("ciao")
