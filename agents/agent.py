@@ -3,8 +3,13 @@ import torch
 
 
 class Agent(ABC):
-    def __init__(self, args: dict):
+    def __init__(
+        self,
+        env: object,
+        args: dict
+    ) -> None:
         super().__init__()
+        self.env = env
         self.args = args
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else
@@ -14,4 +19,8 @@ class Agent(ABC):
     
     @abstractmethod
     def action(self, state: torch.Tensor):
+        pass
+
+    @abstractmethod
+    def train(self) -> None:
         pass
