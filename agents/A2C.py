@@ -4,6 +4,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.distributions import Categorical
+from environment import Environment
+
 
 class Actor(nn.Module):
     def __init__(
@@ -46,8 +48,12 @@ class Critic(nn.Module):
         return value
 
 class A2C(Agent):
-    def __init__(self, args):
-        super().__init__(args)
+    def __init__(
+        self,
+        env: Environment, 
+        args: dict
+    ) -> None:
+        super().__init__(env, args)
         self.num_episodes = int(args["num_episodes"])
 
         self.actor_net = Actor(54, 128, 12).to(self.device)
