@@ -10,7 +10,7 @@ DQN:
     eps_decay: 5000
     tau: 0.005
     lr: 3e-5
-    num_episodes: 10000
+    num_episodes: 600
 
 PPO:
     total_timesteps: 10
