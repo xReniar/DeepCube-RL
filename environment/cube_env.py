@@ -17,13 +17,10 @@ class Environment:
         self.algorithm: Algorithm = init_algo(method)
 
         self._colors_to_positions = {"U": "W", "D": "Y", "F": "G", "R": "R", "B": "B", "L": "O"}
-        self.action_space = np.array([
-            "U", "D", "F", "R", "B", "L",
-            "U'", "D'", "F'", "R'", "B'", "L'"
-        ])
+        self.action_space = np.array(["U", "D", "F", "R", "B", "L","U'", "D'", "F'", "R'", "B'", "L'"])
         
         self.scramble() # start with a scrambled cube
-        self._start_state = np.array([list(self.cube.get_kociemba_facelet_positions())])
+        self._start_state = np.array(list(self.cube.get_kociemba_facelet_positions()))
         self.state = self._start_state
 
     def reset(self) -> np.ndarray:
@@ -69,20 +66,19 @@ class Environment:
         Scrambles the cube
         '''
         self.cube.rotate(' '.join(random.choices(self.action_space, k=self._scramble_moves)))
-        self.state = np.array([list(self.cube.get_kociemba_facelet_positions())])
+        self.state = np.array(list(self.cube.get_kociemba_facelet_positions()))
 
     def step(
         self,
         action: str
-    ) -> tuple:
+    ) -> tuple[np.ndarray, float, bool]:
         # makes action
         if action not in self.action_space:
             raise ValueError(f"Unrecognized '{action}' move")
         
-        self.cube.rotate(action) # questo potrebbe non essere aggiornato come self.state
-
         # update state
-        self.state = self.cube.get_kociemba_facelet_positions()
+        self.cube.rotate(action)
+        self.state = np.array(list(self.cube.get_kociemba_facelet_positions()))
 
         # calculate reward
         reward = self.algorithm.status(self.cube)
