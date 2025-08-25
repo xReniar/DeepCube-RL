@@ -14,7 +14,7 @@ class Environment:
     ) -> None:
         self._scramble_moves = int(args["scramble_moves"])
         self.cube = Cube(size=size)
-        self._algorithm: Algorithm = init_algo(method)
+        self.algorithm: Algorithm = init_algo(method)
 
         self._colors_to_positions = {"U": "W", "D": "Y", "F": "G", "R": "R", "B": "B", "L": "O"}
         self.action_space = np.array([
@@ -23,7 +23,7 @@ class Environment:
         ])
         
         self.scramble() # start with a scrambled cube
-        self._start_state = np.array(list(self.cube.get_kociemba_facelet_positions()))
+        self._start_state = np.array([list(self.cube.get_kociemba_facelet_positions())])
         self.state = self._start_state
 
     def reset(self) -> np.ndarray:
@@ -61,7 +61,7 @@ class Environment:
         left = all([face == "L" for face in faces[4]])
         back = all([face == "B" for face in faces[5]])
 
-        return self._algorithm.status(self.cube) == 12
+        return self.algorithm.status(self.cube) == 12
         #return top and right and front and bottom and left and back
     
     def scramble(self) -> None:
@@ -69,7 +69,7 @@ class Environment:
         Scrambles the cube
         '''
         self.cube.rotate(' '.join(random.choices(self.action_space, k=self._scramble_moves)))
-        self.state = np.array(list(self.cube.get_kociemba_facelet_positions()))
+        self.state = np.array([list(self.cube.get_kociemba_facelet_positions())])
 
     def step(
         self,
@@ -85,6 +85,6 @@ class Environment:
         self.state = self.cube.get_kociemba_facelet_positions()
 
         # calculate reward
-        reward = self._algorithm.status(self.cube)
+        reward = self.algorithm.status(self.cube)
 
         return (self.state, reward, self.is_terminated())
