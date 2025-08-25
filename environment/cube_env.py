@@ -12,7 +12,6 @@ class Environment:
         size: int,
         args: dict
     ) -> None:
-        args = args["environment"]
         self._scramble_moves = int(args["scramble_moves"])
         self.cube = Cube(size=size)
         self._algorithm: Algorithm = init_algo(method)
