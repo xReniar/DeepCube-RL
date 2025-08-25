@@ -58,7 +58,7 @@ class Environment:
         left = all([face == "L" for face in faces[4]])
         back = all([face == "B" for face in faces[5]])
 
-        return self.algorithm.status(self.cube) == 12
+        return self.algorithm.status(self.cube) == 50
         #return top and right and front and bottom and left and back
     
     def scramble(self) -> None:
