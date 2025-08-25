@@ -119,4 +119,29 @@ class DQN(Agent):
             return result
         
     def train(self) -> None:
-        pass
+        for episode in range(self.num_episodes):
+            state = self.env.reset()
+
+            current_reward = self.env.algorithm.status(self.env.cube)
+            for t in range(self.env.scramble_moves * 2):
+                action = self.action(state)
+                obs, reward, done = self.env.step(action.item())
+
+                current_reward = reward
+                torch_current_reward = torch.tensor([current_reward], device=self.device)
+
+                if done:
+                    next_state = None
+                else:
+                    next_state = obs
+                
+                self.memory.push(state, action, next_state, torch_current_reward)
+                state = next_state
+
+                self.optimize()
+
+                target_net_state_dict = self.target_net.state_dict()
+                policy_net_state_dict = self.policy_net.state_dict()
+                for key in policy_net_state_dict:
+                    target_net_state_dict[key] = policy_net_state_dict[key]*self.tau + target_net_state_dict[key]*(1-self.tau)
+                self.target_net.load_state_dict(target_net_state_dict)
