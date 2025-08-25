@@ -11,7 +11,6 @@ DQN:
     eps_decay: 5000
     tau: 0.005
     lr: 3e-5
-    n_actions: 12
     num_episodes: 10000
 
 PPO:
