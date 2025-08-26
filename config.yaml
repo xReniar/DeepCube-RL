@@ -16,6 +16,7 @@ PPO:
     total_timesteps: 10
     timesteps_per_batch: 4800
     max_timesteps_per_episode: 1600
+    gamma: 0.95
 
 SA2C:
     alpha: 0.0003
