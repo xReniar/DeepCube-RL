@@ -40,16 +40,21 @@ class PPO(Agent):
         self.timesteps_per_batch = int(args["timesteps_per_batch"])
         self.max_timesteps_per_episode = int(args["max_timesteps_per_episode"])
         self.gamma = float(args["gamma"])
+        self.lr = float(args["lr"])
+        self.n_updates_per_iteration  = int(args["n_updates_per_iteration"])
+        self.clip = float(args["clip"])
 
         # environment info
         self.obs_dim = 54
         self.act_dim = self.env.action_space.shape[0]
 
-        # initialize actor and critic networks
-        self.actor = Network(self.obs_dim[1], 64, self.act_dim)
-        self.critic = Network(self.obs_dim[1], 1)
+        # initialize actor and critic networks)
+        self.actor = Network(self.obs_dim, 64, self.act_dim)
+        self.critic = Network(self.obs_dim, 64, 1)
+        self.actor_optim = optim.Adam(self.actor.parameters(), lr=self.lr)
+        self.critic_optim = optim.Adam(self.critic.parameters(), lr=self.lr)
 
-        # covariance matrice for get_action
+        # covariance matrice for action
         self.cov_var = torch.full(size=(self.act_dim,), fill_value=0.5)
         self.cov_mat = torch.diag(self.cov_var)
 
@@ -85,8 +90,8 @@ class PPO(Agent):
                 t += 1
 
                 batch_obs.append(self.state_to_tensor(obs))
-                action, log_prob = self.get_action(self.state_to_tensor(obs))
-                obs, reward, done = self.env.step(action)
+                action, log_prob = self.action(self.state_to_tensor(obs))
+                obs, reward, done = self.env.step(self.action_to_move(action.argmax().item()))
 
                 ep_rews.append(reward)
                 batch_acts.append(action)
@@ -106,7 +111,7 @@ class PPO(Agent):
         return batch_obs, batch_acts, batch_log_probs, batch_rtgs, batch_lens
 
 
-    def get_action(self, obs: torch.Tensor) -> tuple[str, any]:
+    def action(self, obs: torch.Tensor) -> tuple[np.ndarray, any]:
         mean = self.actor(obs)
         dist = MultivariateNormal(mean, self.cov_mat)
         
@@ -114,10 +119,39 @@ class PPO(Agent):
         log_prob = dist.log_prob(action)
 
         return action.detach().numpy(), log_prob.detach()
+    
+    def evaluate(self, batch_obs, batch_acts) -> tuple:
+        V = self.critic(batch_obs).squeeze()
+
+        mean = self.actor(batch_obs)
+        dist = MultivariateNormal(mean, self.cov_mat)
+        log_probs = dist.log_prob(batch_acts)
+        return V, log_probs
 
     def train(self) -> None:
         t = 0
 
         while t < self.total_timesteps:
             batch_obs, batch_acts, batch_log_probs, batch_rtgs, batch_lens = self.rollout()
+            t += np.sum(batch_lens)
+            V, _ = self.evaluate(batch_obs, batch_acts)
+            A_k = batch_rtgs - V.detach()
+            A_k = (A_k - A_k.mean()) / (A_k.std() + 1e-10)
 
+            for _ in range(self.n_updates_per_iteration):
+                V, curr_log_probs = self.evaluate(batch_obs, batch_acts)
+                ratios = torch.exp(curr_log_probs - batch_log_probs)
+
+                surr1 = ratios * A_k
+                surr2 = torch.clamp(ratios, 1 - self.clip, 1+ self.clip) * A_k
+
+                actor_loss = (-torch.min(surr1, surr2)).mean()
+                critic_loss = nn.MSELoss()(V, batch_rtgs)
+
+                self.actor_optim.zero_grad()
+                actor_loss.backward(retain_graph=True)
+                self.actor_optim.step()
+
+                self.critic_optim.zero_grad()
+                critic_loss.backward()
+                self.critic_optim.step()
