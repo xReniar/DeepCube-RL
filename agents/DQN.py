@@ -162,7 +162,7 @@ class DQN(Agent):
                 self.memory.push(
                     self.state_to_tensor(state),
                     action,
-                    self.state_to_tensor(next_state) if next_state is not None else self.state_to_tensor(next_state),
+                    self.state_to_tensor(next_state) if next_state is not None else None,
                     torch_current_reward
                 )
                 state = next_state
@@ -177,6 +177,8 @@ class DQN(Agent):
 
                 if done:
                     break
+                
+        # save model
 
 
     def plot_durations(self, show_result=False):
