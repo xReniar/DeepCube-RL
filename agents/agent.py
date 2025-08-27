@@ -24,9 +24,12 @@ class Agent(ABC):
         return mapper[move_id]
     
     def state_to_tensor(self, state: np.ndarray) -> torch.Tensor:
+        '''
         mapper = {action: i for i, action in enumerate(["U", "D", "F", "R", "B", "L"])}
         tensor_state = torch.from_numpy(np.vectorize(mapper.get)(state)).to(self.device).float()
         return tensor_state.unsqueeze(0)
+        '''
+        return torch.from_numpy(state).float().to(self.device)
     
     @abstractmethod
     def action(self, state: torch.Tensor):
