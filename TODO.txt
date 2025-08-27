@@ -1,0 +1,3 @@
+- risolvere i problemi con PPO provando la repo online e vedendo i type per variabile
+- finire il tutorial part-4 sull'ottimizzazione di PPO
+- Provare rete neurale per ogni faccia e identificare ogni facelet per id pezzo
