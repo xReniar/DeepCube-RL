@@ -19,11 +19,6 @@ class Environment:
 
         self._colors_to_positions = {"U": "W", "D": "Y", "F": "G", "R": "R", "B": "B", "L": "O"}
         self.action_space = np.array(["U", "D", "F", "R", "B", "L","U'", "D'", "F'", "R'", "B'", "L'"])
-        
-        self.scramble() # start with a scrambled cube
-        self._start_state = np.array(list(self.cube.get_kociemba_facelet_positions()))
-        self.state = self._start_state
-        self.state2 = self._get_state()
 
         self._piece_mapper = {
             0:  (1, 3, 4), 1:  (1, 3, -1), 2:  (1, 3, 5), 3:  (1, -1, 4), 4:  (1, -1, -1), 5:  (1, -1, 5),
@@ -32,6 +27,11 @@ class Environment:
             18: (0, 3, -1), 19: (0, 3, 5), 20: (0, -1, 4), 21: (0, -1, -1), 22: (0, -1, 5), 23: (0, 2, 4),
             24: (0, 2, -1), 25: (0, 2, 5)
         }
+        
+        self.scramble() # start with a scrambled cube
+        self._start_state = np.array(list(self.cube.get_kociemba_facelet_positions()))
+        self.state = self._start_state
+        self.state2 = self._get_state()
 
     def _color_to_id(self, color) -> int:
         return color.value if color != None else -1
