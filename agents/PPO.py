@@ -111,12 +111,12 @@ class PPO(Agent):
         return batch_obs, batch_acts, batch_log_probs, batch_rtgs, batch_lens
 
 
-    def action(self, obs: torch.Tensor) -> tuple[np.ndarray, any]:
+    def action(self, obs: torch.Tensor) -> tuple[np.ndarray, torch.Tensor]:
         mean = self.actor(obs)
         dist = MultivariateNormal(mean, self.cov_mat)
         
-        action = dist.sample()
-        log_prob = dist.log_prob(action)
+        action: torch.Tensor = dist.sample()
+        log_prob: torch.Tensor = dist.log_prob(action)
 
         return action.detach().numpy(), log_prob.detach()
     
