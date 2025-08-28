@@ -20,18 +20,33 @@ class DeepQNet(nn.Module):
         output_dim: int
     ) -> None:
         super().__init__()
-        self.layers = nn.ModuleList()
-        self.layers.append(nn.Linear(input_dim, hidden_dim))
-        for i in range(1, 5):
-            self.layers.append(nn.Linear(hidden_dim, hidden_dim))
-        self.head = nn.Linear(hidden_dim, output_dim)
+        self.embedding = nn.Linear(input_dim, hidden_dim)
+        self.attention = nn.MultiheadAttention(
+            embed_dim=hidden_dim,
+            num_heads=4,
+            batch_first=True
+        )
+        self.layer_norm = nn.LayerNorm(hidden_dim)
+        self.ffn = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(inplace=True)
+        )
+        self.output_layer = nn.Sequential(
+            nn.Linear(hidden_dim * 26, hidden_dim * 2),
+            nn.ReLU(inplace=True),
+            nn.Linear(hidden_dim * 2, output_dim)
+        )
 
-    def forward(self, x) -> torch.Tensor:
-        for layer in self.layers:
-            x = F.relu(layer(x))
-        
-        x = self.head(x)
-        return x
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        embedded = self.embedding(x)
+        attn_output, _ = self.attention(embedded, embedded, embedded)
+        attn_output = self.layer_norm(embedded + attn_output)
+        ffn_output = self.ffn(attn_output)
+        output = self.layer_norm(attn_output + ffn_output)
+
+        flattened = output.view(1, -1)
+        output = self.output_layer(flattened)
+        return output
 
 
 Transition = namedtuple('Transition',
@@ -67,8 +82,8 @@ class DQN(Agent):
         self.lr: float = float(args["lr"])
         self.num_episodes: int = int(args["num_episodes"])
 
-        self.policy_net = DeepQNet(54, 512, self.env.action_space.shape[0]).to(self.device)
-        self.target_net = DeepQNet(54, 512, self.env.action_space.shape[0]).to(self.device)
+        self.policy_net = DeepQNet(5, 128, self.env.action_space.shape[0]).to(self.device)
+        self.target_net = DeepQNet(5, 128, self.env.action_space.shape[0]).to(self.device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         
         self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=self.lr, amsgrad=True)
@@ -130,12 +145,14 @@ class DQN(Agent):
         for _ in range(self.num_episodes):
             rewards = {}
             state = self.env.reset()
+            state = self.env.state2
 
             current_reward = self.env.algorithm.status(self.env.cube)
             for t in count():
                 action: torch.Tensor = self.action(state)
                 move: str = self.action_to_move(action.item())
                 obs, reward, done = self.env.step(move)
+                obs = self.env.state2
 
                 if reward not in rewards:
                     rewards[reward] = 1
