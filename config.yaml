@@ -14,9 +14,9 @@ DQN:
 
 PPO:
     total_timesteps: 200000000
-    timesteps_per_batch: 4800
-    max_timesteps_per_episode: 1600
-    gamma: 0.95
+    timesteps_per_batch: 8192
+    max_timesteps_per_episode: 4096
+    gamma: 0.6
     lr: 0.005
     n_updates_per_iteration: 5
     clip: 0.2
