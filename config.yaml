@@ -3,8 +3,8 @@ environment:
 
 DQN:
     mem_capacity: 100000
-    gamma: 0.4
-    batch_size: 4096
+    gamma: 0.6
+    batch_size: 8192
     eps_start: 0.9
     eps_end: 0.01
     eps_decay: 5000
@@ -13,7 +13,7 @@ DQN:
     num_episodes: 600
 
 PPO:
-    total_timesteps: 10
+    total_timesteps: 200000000
     timesteps_per_batch: 4800
     max_timesteps_per_episode: 1600
     gamma: 0.95
