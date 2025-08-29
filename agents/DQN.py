@@ -187,4 +187,4 @@ class DQN(Agent):
                 if done:
                     break
                 
-        # save model
+        torch.save(self.policy_net.state_dict(), 'models/DQN/dqn_policy_net(cross).pth')
