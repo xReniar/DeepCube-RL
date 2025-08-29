@@ -44,7 +44,7 @@ class DeepQNet(nn.Module):
         ffn_output = self.ffn(attn_output)
         output = self.layer_norm(attn_output + ffn_output)
 
-        flattened = output.view(1, -1)
+        flattened = output.view(x.size(0), -1)
         output = self.output_layer(flattened)
         return output
 
