@@ -16,18 +16,38 @@ class Network(nn.Module):
         output_dim: int
     ) -> None:
         super().__init__()
+        self.embedding = nn.Linear(input_dim, hidden_dim)
+        self.attention = nn.MultiheadAttention(
+            embed_dim=hidden_dim,
+            num_heads=4,
+            batch_first=True
+        )
+        self.layer_norm = nn.LayerNorm(hidden_dim)
+        self.ffn = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(inplace=True)
+        )
+        self.output_layer = nn.Sequential(
+            nn.Linear(hidden_dim * 26, hidden_dim * 2),
+            nn.ReLU(inplace=True),
+            nn.Linear(hidden_dim * 2, output_dim)
+        )
 
-        self.fc1 = nn.Linear(input_dim, hidden_dim)
-        self.fc2 = nn.Linear(hidden_dim, hidden_dim)
-        self.fc3 = nn.Linear(hidden_dim, output_dim)
-        pass
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        '''
+        if isinstance(x, np.ndarray):
+            x = torch.from_numpy(x).float().to("cuda" if torch.cuda.is_available() else "cpu")
+        '''
 
-    def forward(self, x: torch.Tensor):
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = self.fc3(x)
+        embedded = self.embedding(x)
+        attn_output, _ = self.attention(embedded, embedded, embedded)
+        attn_output = self.layer_norm(embedded + attn_output)
+        ffn_output = self.ffn(attn_output)
+        output = self.layer_norm(attn_output + ffn_output)
 
-        return x
+        flattened = output.view(x.size(0), -1)
+        output = self.output_layer(flattened)
+        return output
 
 class PPO(Agent):
     def __init__(
@@ -49,14 +69,14 @@ class PPO(Agent):
         self.act_dim = self.env.action_space.shape[0]
 
         # initialize actor and critic networks)
-        self.actor = Network(self.obs_dim, 64, self.act_dim)
-        self.critic = Network(self.obs_dim, 64, 1)
+        self.actor = Network(5, 128, self.act_dim).to(self.device)
+        self.critic = Network(5, 128, 1).to(self.device)
         self.actor_optim = optim.Adam(self.actor.parameters(), lr=self.lr)
         self.critic_optim = optim.Adam(self.critic.parameters(), lr=self.lr)
 
         # covariance matrice for action
-        self.cov_var = torch.full(size=(self.act_dim,), fill_value=0.5)
-        self.cov_mat = torch.diag(self.cov_var)
+        self.cov_var = torch.full(size=(self.act_dim,), fill_value=0.5).to(self.device)
+        self.cov_mat = torch.diag(self.cov_var).to(self.device)
 
     def compute_rtgs(self, batch_rews: list) -> torch.Tensor:
         batch_rtgs = []
@@ -67,7 +87,7 @@ class PPO(Agent):
                 discounted_reward = rew + discounted_reward * self.gamma
                 batch_rtgs.insert(0, discounted_reward)
         
-        batch_rtgs = torch.tensor(batch_rtgs, dtype=torch.float)
+        batch_rtgs = torch.tensor(batch_rtgs, dtype=torch.float, device=self.device)
         return batch_rtgs
 
     def rollout(self) -> tuple:
@@ -84,6 +104,7 @@ class PPO(Agent):
             ep_rews = []
 
             obs = self.env.reset()
+            obs = self.env.state2
             done = False
 
             for ep_t in range(self.max_timesteps_per_episode):
@@ -92,6 +113,7 @@ class PPO(Agent):
                 batch_obs.append(self.state_to_tensor(obs))
                 action, log_prob = self.action(self.state_to_tensor(obs))
                 obs, reward, done = self.env.step(self.action_to_move(action.argmax().item()))
+                obs = self.env.state2
 
                 ep_rews.append(reward)
                 batch_acts.append(action)
@@ -103,9 +125,9 @@ class PPO(Agent):
             batch_lens.append(ep_t + 1)
             batch_rews.append(ep_rews)
         
-        batch_obs = torch.tensor(batch_obs, dtype=torch.float)
-        batch_acts = torch.tensor(batch_acts, dtype=torch.float)
-        batch_log_probs = torch.tensor(batch_log_probs, dtype=torch.float)
+        batch_obs = torch.stack(batch_obs).float().squeeze(1).to(self.device)
+        batch_acts = torch.tensor(np.array(batch_acts), dtype=torch.float, device=self.device).squeeze(1)
+        batch_log_probs = torch.tensor(batch_log_probs, dtype=torch.float, device=self.device)
         batch_rtgs = self.compute_rtgs(batch_rews)
 
         return batch_obs, batch_acts, batch_log_probs, batch_rtgs, batch_lens
@@ -118,7 +140,7 @@ class PPO(Agent):
         action: torch.Tensor = dist.sample()
         log_prob: torch.Tensor = dist.log_prob(action)
 
-        return action.detach().numpy(), log_prob.detach()
+        return action.detach().cpu().numpy(), log_prob.detach()
     
     def evaluate(self, batch_obs, batch_acts) -> tuple:
         V = self.critic(batch_obs).squeeze()
@@ -133,6 +155,7 @@ class PPO(Agent):
 
         while t < self.total_timesteps:
             batch_obs, batch_acts, batch_log_probs, batch_rtgs, batch_lens = self.rollout()
+            
             t += np.sum(batch_lens)
             V, _ = self.evaluate(batch_obs, batch_acts)
             A_k = batch_rtgs - V.detach()
