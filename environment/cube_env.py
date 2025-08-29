@@ -59,6 +59,7 @@ class Environment:
         '''
         Reset the environment to get the first observation
         '''
+        '''
         self.state = self._start_state
         positions = "".join(self.state)
         faces = []
@@ -73,6 +74,8 @@ class Environment:
         back = "".join([self._colors_to_positions[face] for face in faces[5]])
         self.cube = Cube(state=f"{top}{left}{front}{right}{back}{bottom}")
         self.state2 = self._get_state()
+        '''
+        self.scramble()
         return self.state
     
     def is_terminated(self) -> bool:
@@ -91,7 +94,7 @@ class Environment:
         left = all([face == "L" for face in faces[4]])
         back = all([face == "B" for face in faces[5]])
 
-        return self.algorithm.status(self.cube) == 50
+        return self.algorithm.status(self.cube) == 100
         #return top and right and front and bottom and left and back
     
     def scramble(self) -> None:

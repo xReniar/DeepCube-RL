@@ -39,7 +39,7 @@ class LBL(Algorithm):
                                     int((faces[face][7] == faces[face][4]) and (faces["bottom"][3] == faces["bottom"][4])) * 3
                     
         if cross_status == 12:
-            cross_status = 50
+            cross_status = 100
         if cross_status == 0:
             cross_status = -1
         
