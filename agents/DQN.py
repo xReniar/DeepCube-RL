@@ -37,15 +37,15 @@ class DeepQNet(nn.Module):
             nn.Linear(hidden_dim * 2, output_dim)
         )
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        embedded = self.embedding(x)
+    def forward(self, state: torch.Tensor) -> torch.Tensor:
+        embedded: torch.Tensor = self.embedding(state)
         attn_output, _ = self.attention(embedded, embedded, embedded)
-        attn_output = self.layer_norm(embedded + attn_output)
-        ffn_output = self.ffn(attn_output)
-        output = self.layer_norm(attn_output + ffn_output)
+        attn_output: torch.Tensor = self.layer_norm(embedded + attn_output)
+        ffn_output: torch.Tensor = self.ffn(attn_output)
+        output: torch.Tensor = self.layer_norm(attn_output + ffn_output)
 
-        flattened = output.view(x.size(0), -1)
-        output = self.output_layer(flattened)
+        flattened: torch.Tensor = output.view(state.size(0), -1)
+        output: torch.Tensor = self.output_layer(flattened)
         return output
 
 
