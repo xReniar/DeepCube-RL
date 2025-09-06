@@ -1,14 +1,15 @@
 from .cfop import CFOP
 from .lbl import LBL
 from .algorithm import Algorithm
+from magiccube import Cube
 
 
-def init_algo(name: str) -> Algorithm:
+def init_algo(name: str, cube: Cube) -> Algorithm:
     method = None
     if name == "CFOP":
-        method = CFOP()
+        method = CFOP(cube)
     elif name == "LBL":
-        method = LBL()
+        method = LBL(cube)
     else:
         raise ValueError(f"No {name} method implemented!!")
 
