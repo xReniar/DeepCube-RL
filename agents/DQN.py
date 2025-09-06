@@ -34,7 +34,7 @@ class DeepQNet(nn.Module):
             nn.ReLU(inplace=True)
         )
         self.output_layer = nn.Sequential(
-            nn.Linear(hidden_dim * 26, hidden_dim * 12),
+            nn.Linear(hidden_dim * 26 + 4, hidden_dim * 12),
             nn.ReLU(inplace=True),
             nn.Linear(hidden_dim * 12, hidden_dim * 6),
             nn.ReLU(inplace=True),
@@ -80,8 +80,6 @@ class DeepQNet(nn.Module):
         )
 
     def forward(self, state: torch.Tensor) -> torch.Tensor:
-        # progress ha shape (batch_size, 4)
-        # mentre state ha shape (batch_size, 26, 5)
         progress: torch.Tensor = self.get_progress(state)
 
         embedded: torch.Tensor = self.embedding(state)
@@ -91,7 +89,8 @@ class DeepQNet(nn.Module):
         output: torch.Tensor = self.layer_norm(attn_output + ffn_output)
 
         flattened: torch.Tensor = output.view(state.size(0), -1)
-        output: torch.Tensor = self.output_layer(flattened)
+        combined: torch.Tensor = torch.cat([flattened, progress], dim=1)
+        output: torch.Tensor = self.output_layer(combined)
         return output
 
 
