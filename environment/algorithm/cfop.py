@@ -3,8 +3,8 @@ from magiccube import Cube
 
 
 class CFOP(Algorithm):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, cube: Cube) -> None:
+        super().__init__(cube)
 
     def cross(self, cube: Cube) -> float:
         '''
@@ -76,7 +76,7 @@ class CFOP(Algorithm):
 
         return float(all([front, right, back, left]))
         
-    def status(
+    def reward(
         self,
         cube: Cube
     ) -> float:

@@ -3,14 +3,14 @@ from magiccube import Cube
 
 
 class LBL(Algorithm):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, cube: Cube) -> None:
+        super().__init__(cube)
 
-    def bottom_cross(self, cube: Cube) -> int:
+    def bottom_cross(self) -> int:
         '''
         Checks if bottom cross pieces are inserted correctly
         '''
-        faces = self.cube_faces(cube)
+        faces = self.cube_faces()
 
         sides = ["front", "right", "back", "left"]
         adjacency = {}
@@ -57,8 +57,8 @@ class LBL(Algorithm):
         
         return cross_status
 
-    def first_layer(self, cube: Cube) -> int:
-        faces = self.cube_faces(cube)
+    def first_layer(self) -> int:
+        faces = self.cube_faces()
 
         piece_1 = (faces["front"][8] == faces["front"][4]) and (faces["right"][6] == faces["right"][4])
         piece_2 = (faces["right"][8] == faces["right"][4]) and (faces["back"][6] == faces["back"][4])
@@ -71,8 +71,8 @@ class LBL(Algorithm):
         else:
             return sum_reward
 
-    def second_layer(self, cube: Cube) -> int:
-        faces = self.cube_faces(cube)
+    def second_layer(self) -> int:
+        faces = self.cube_faces()
 
         piece_1 = (faces["front"][5] == faces["front"][4]) and (faces["right"][3] == faces["right"][4])
         piece_2 = (faces["right"][5] == faces["right"][4]) and (faces["back"][3] == faces["back"][4])
@@ -85,14 +85,14 @@ class LBL(Algorithm):
         else:
             return sum_reward
 
-    def top_cross(self, cube: Cube) -> int:
-        faces = self.cube_faces(cube)
+    def top_cross(self) -> int:
+        faces = self.cube_faces()
 
-    def top_edge(self, cube: Cube) -> int:
-        faces = self.cube_faces(cube)
+    def top_edge(self) -> int:
+        faces = self.cube_faces()
 
-    def top_corners(self, cube: Cube) -> int:
-        faces = self.cube_faces(cube)
+    def top_corners(self) -> int:
+        faces = self.cube_faces()
     
-    def status(self, cube: Cube) -> int:
-        return self.bottom_cross(cube)
+    def reward(self) -> int:
+        return self.bottom_cross()
