@@ -15,7 +15,7 @@ class Environment:
     ) -> None:
         self._scramble_moves = int(args["scramble_moves"])
         self.cube = Cube(size=size)
-        self.algorithm: Algorithm = init_algo(method)
+        self.algorithm: Algorithm = init_algo(method, self.cube)
 
         self._colors_to_positions = {"U": "W", "D": "Y", "F": "G", "R": "R", "B": "B", "L": "O"}
         self.action_space = np.array(["U", "D", "F", "R", "B", "L","U'", "D'", "F'", "R'", "B'", "L'"])
@@ -94,7 +94,7 @@ class Environment:
         left = all([face == "L" for face in faces[4]])
         back = all([face == "B" for face in faces[5]])
 
-        return self.algorithm.status(self.cube) == 100
+        return self.algorithm.reward() == 100
         #return top and right and front and bottom and left and back
     
     def scramble(self) -> None:
@@ -119,6 +119,6 @@ class Environment:
         self.state2 = self._get_state()
 
         # calculate reward
-        reward = self.algorithm.status(self.cube)
+        reward = self.algorithm.reward()
 
         return (self.state, reward, self.is_terminated())
