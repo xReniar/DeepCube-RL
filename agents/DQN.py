@@ -15,11 +15,13 @@ import matplotlib.pyplot as plt
 class DeepQNet(nn.Module):
     def __init__(
         self,
+        phase: str,
         input_dim: int,
         hidden_dim: int,
         output_dim: int
     ) -> None:
         super().__init__()
+        self.phase = phase
         self.embedding = nn.Linear(input_dim, hidden_dim)
         self.attention = nn.MultiheadAttention(
             embed_dim=hidden_dim,
@@ -32,12 +34,56 @@ class DeepQNet(nn.Module):
             nn.ReLU(inplace=True)
         )
         self.output_layer = nn.Sequential(
-            nn.Linear(hidden_dim * 26, hidden_dim * 2),
+            nn.Linear(hidden_dim * 26, hidden_dim * 12),
             nn.ReLU(inplace=True),
-            nn.Linear(hidden_dim * 2, output_dim)
+            nn.Linear(hidden_dim * 12, hidden_dim * 6),
+            nn.ReLU(inplace=True),
+            nn.Linear(hidden_dim * 6, hidden_dim * 3),
+            nn.ReLU(inplace=True),
+            nn.Linear(hidden_dim * 3, hidden_dim),
+            nn.ReLU(inplace=True),
+            nn.Linear(hidden_dim, hidden_dim // 2),
+            nn.ReLU(inplace=True),
+            nn.Linear(hidden_dim // 2, output_dim)
+        )
+
+    def get_progress(self, states: torch.Tensor) -> torch.Tensor:
+        progress = []
+        for state in states:
+            current_progress = []
+            if self.phase == "cross":
+                current_progress = [
+                    np.array_equal(state[11].numpy(), [-1.0, 3.0, 5.0, 11.0, 11.0]),
+                    np.array_equal(state[18].numpy(), [0.0, 3.0, -1.0, 18.0, 18.0]),
+                    np.array_equal(state[9].numpy(), [-1.0, 3.0, 4.0, 9.0, 9.0]),
+                    np.array_equal(state[1].numpy(), [1.0, 3.0, -1.0, 1.0, 1.0])
+                ]
+            elif self.phase == "fist-layer":
+                current_progress = [
+                    np.array_equal(state[19].numpy(), [0.0, 3.0, 5.0, 19.0, 19.0]),
+                    np.array_equal(state[17].numpy(), [0.0, 3.0, 4.0, 17.0, 17.0]),
+                    np.array_equal(state[0].numpy(), [1.0, 3.0, 4.0, 0.0, 0.0]),
+                    np.array_equal(state[2].numpy(), [1.0, 3.0, 5.0, 2.0, 2.0])
+                ]
+            elif self.phase == "second-layer":
+                f = state[11]
+                r = state[18]
+                b = state[9]
+                l = state[1]
+            else:
+                raise Exception(f"Unrecognized {self.phase} phase")
+            progress.append(list(map(lambda x: float(x), current_progress)))
+        
+        return torch.tensor(
+            data=progress,
+            device=state.device
         )
 
     def forward(self, state: torch.Tensor) -> torch.Tensor:
+        # progress ha shape (batch_size, 4)
+        # mentre state ha shape (batch_size, 26, 5)
+        progress: torch.Tensor = self.get_progress(state)
+
         embedded: torch.Tensor = self.embedding(state)
         attn_output, _ = self.attention(embedded, embedded, embedded)
         attn_output: torch.Tensor = self.layer_norm(embedded + attn_output)
@@ -82,8 +128,8 @@ class DQN(Agent):
         self.lr: float = float(args["lr"])
         self.num_episodes: int = int(args["num_episodes"])
 
-        self.policy_net = DeepQNet(5, 128, self.env.action_space.shape[0]).to(self.device)
-        self.target_net = DeepQNet(5, 128, self.env.action_space.shape[0]).to(self.device)
+        self.policy_net = DeepQNet("cross", 5, 128, self.env.action_space.shape[0]).to(self.device)
+        self.target_net = DeepQNet("cross", 5, 128, self.env.action_space.shape[0]).to(self.device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         
         self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=self.lr, amsgrad=True)
