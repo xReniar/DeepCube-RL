@@ -21,22 +21,34 @@ class LBL(Algorithm):
 
         cross_status = 0.0
         for face in adjacency.keys():
+            # piece on the side
             if ((faces[face][3] == faces[face][4]) and (faces[adjacency[face][0]][5] == faces["bottom"][4])) or \
                ((faces[face][5] == faces[face][4]) and (faces[adjacency[face][1]][3] == faces["bottom"][4])):
                 cross_status += 2
+
+            # first condition: piece on top correctly positioned
+            # second condition: piece inserted
+            # thid condition: piece bad orientation correctly positioned
+            if face == "front":
+                cross_status += int((faces[face][1] == faces[face][4]) and (faces["top"][7] == faces["bottom"][4])) * 1 + \
+                                int((faces[face][7] == faces[face][4]) and (faces["bottom"][1] == faces["bottom"][4])) * 3
+                cross_status += int((faces[adjacency[face][0]][1] == faces["bottom"][4]) and (faces["top"][3] == faces[face][4])) + \
+                                int((faces[adjacency[face][1]][1] == faces["bottom"][4]) and (faces["top"][5] == faces[face][4]))
+            elif face == "right":
+                cross_status += int((faces[face][1] == faces[face][4]) and (faces["top"][5] == faces["bottom"][4])) * 1 + \
+                                int((faces[face][7] == faces[face][4]) and (faces["bottom"][5] == faces["bottom"][4])) * 3
+                cross_status += int((faces[adjacency[face][0]][1] == faces["bottom"][4]) and (faces["top"][7] == faces[face][4])) + \
+                                int((faces[adjacency[face][1]][1] == faces["bottom"][4]) and (faces["top"][1] == faces[face][4]))
+            elif face == "back":
+                cross_status += int((faces[face][1] == faces[face][4]) and (faces["top"][1] == faces["bottom"][4])) * 1 + \
+                                int((faces[face][7] == faces[face][4]) and (faces["bottom"][7] == faces["bottom"][4])) * 3
+                cross_status += int((faces[adjacency[face][0]][1] == faces["bottom"][4]) and (faces["top"][5] == faces[face][4])) + \
+                                int((faces[adjacency[face][1]][1] == faces["bottom"][4]) and (faces["top"][3] == faces[face][4]))
             else:
-                if face == "front":
-                    cross_status += int((faces[face][1] == faces[face][4]) and (faces["top"][7] == faces["bottom"][4])) * 1 + \
-                                    int((faces[face][7] == faces[face][4]) and (faces["bottom"][1] == faces["bottom"][4])) * 3
-                elif face == "right":
-                    cross_status += int((faces[face][1] == faces[face][4]) and (faces["top"][5] == faces["bottom"][4])) * 1 + \
-                                    int((faces[face][7] == faces[face][4]) and (faces["bottom"][5] == faces["bottom"][4])) * 3
-                elif face == "back":
-                    cross_status += int((faces[face][1] == faces[face][4]) and (faces["top"][1] == faces["bottom"][4])) * 1 + \
-                                    int((faces[face][7] == faces[face][4]) and (faces["bottom"][7] == faces["bottom"][4])) * 3
-                else:
-                    cross_status += int((faces[face][1] == faces[face][4]) and (faces["top"][3] == faces["bottom"][4])) * 1 + \
-                                    int((faces[face][7] == faces[face][4]) and (faces["bottom"][3] == faces["bottom"][4])) * 3
+                cross_status += int((faces[face][1] == faces[face][4]) and (faces["top"][3] == faces["bottom"][4])) * 1 + \
+                                int((faces[face][7] == faces[face][4]) and (faces["bottom"][3] == faces["bottom"][4])) * 3
+                cross_status += int((faces[adjacency[face][0]][1] == faces["bottom"][4]) and (faces["top"][1] == faces[face][4])) + \
+                                int((faces[adjacency[face][1]][1] == faces["bottom"][4]) and (faces["top"][7] == faces[face][4]))
                     
         if cross_status == 12:
             cross_status = 100
