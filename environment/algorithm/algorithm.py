@@ -3,14 +3,12 @@ from magiccube import Cube
 
 
 class Algorithm(ABC):
-    def __init__(self) -> None:
+    def __init__(self, cube: Cube) -> None:
         super().__init__()
+        self.cube = cube
 
-    def cube_faces(
-        self,
-        cube: Cube
-    ) -> dict[str, list]:
-        positions = cube.get_kociemba_facelet_positions()
+    def cube_faces(self) -> dict[str, list]:
+        positions = self.cube.get_kociemba_facelet_positions()
         faces = []
         for i in range(0, 6):
             faces.append(positions[9*i: 9 + 9*i])
@@ -26,15 +24,15 @@ class Algorithm(ABC):
 
         return faces_dict
 
-    def solved(
-        self,
-        cube: Cube
-    ) -> bool:
-        return cube.is_done()
+    def solved(self) -> bool:
+        return self.cube.is_done()
+    
+    def status(self):
+        # cube_status will be a variable that flags 1 for every correct piece that is inserted
+        cube_status = [
+
+        ]
 
     @abstractmethod
-    def status(
-        self,
-        cube: Cube
-    ) -> int:
+    def reward(self) -> int:
         pass
