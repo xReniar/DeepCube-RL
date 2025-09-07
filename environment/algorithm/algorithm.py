@@ -38,7 +38,9 @@ class Algorithm(ABC):
                 int((faces["right"][4] == faces["right"][7]) and (faces["bottom"][4] == faces["bottom"][5])),
                 int((faces["back"][4] == faces["back"][7]) and (faces["bottom"][4] == faces["bottom"][7])),
                 int((faces["left"][4] == faces["left"][7]) and (faces["bottom"][4] == faces["bottom"][3]))
-            ],
+            ]
+        ])
+        '''
             [
                 int((faces["front"][8] == faces["front"][4]) and (faces["right"][6] == faces["right"][4])),
                 int((faces["right"][8] == faces["right"][4]) and (faces["back"][6] == faces["back"][4])),
@@ -51,7 +53,7 @@ class Algorithm(ABC):
                 int((faces["back"][5] == faces["back"][4]) and (faces["left"][3] == faces["left"][4])),
                 int((faces["left"][5] == faces["left"][4]) and (faces["front"][3] == faces["front"][4])),
             ]
-        ])
+        '''
 
         return cube_status
 
