@@ -192,7 +192,7 @@ class DQN(Agent):
             state = self.env.reset()
             state = self.env.state2
 
-            current_reward = self.env.algorithm.status(self.env.cube)
+            current_reward = self.env.algorithm.reward()
             for t in count():
                 action: torch.Tensor = self.action(state)
                 move: str = self.action_to_move(action.item())
