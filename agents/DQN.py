@@ -53,17 +53,17 @@ class DeepQNet(nn.Module):
             current_progress = []
             if self.phase == "cross":
                 current_progress = [
-                    np.array_equal(state[11].numpy(), [-1.0, 3.0, 5.0, 11.0, 11.0]),
-                    np.array_equal(state[18].numpy(), [0.0, 3.0, -1.0, 18.0, 18.0]),
-                    np.array_equal(state[9].numpy(), [-1.0, 3.0, 4.0, 9.0, 9.0]),
-                    np.array_equal(state[1].numpy(), [1.0, 3.0, -1.0, 1.0, 1.0])
+                    np.array_equal(state[11].cpu().detach().numpy(), [-1.0, 3.0, 5.0, 11.0, 11.0]),
+                    np.array_equal(state[18].cpu().detach().numpy(), [0.0, 3.0, -1.0, 18.0, 18.0]),
+                    np.array_equal(state[9].cpu().detach().numpy(), [-1.0, 3.0, 4.0, 9.0, 9.0]),
+                    np.array_equal(state[1].cpu().detach().numpy(), [1.0, 3.0, -1.0, 1.0, 1.0])
                 ]
             elif self.phase == "fist-layer":
                 current_progress = [
-                    np.array_equal(state[19].numpy(), [0.0, 3.0, 5.0, 19.0, 19.0]),
-                    np.array_equal(state[17].numpy(), [0.0, 3.0, 4.0, 17.0, 17.0]),
-                    np.array_equal(state[0].numpy(), [1.0, 3.0, 4.0, 0.0, 0.0]),
-                    np.array_equal(state[2].numpy(), [1.0, 3.0, 5.0, 2.0, 2.0])
+                    np.array_equal(state[19].cpu().detach().numpy(), [0.0, 3.0, 5.0, 19.0, 19.0]),
+                    np.array_equal(state[17].cpu().detach().numpy(), [0.0, 3.0, 4.0, 17.0, 17.0]),
+                    np.array_equal(state[0].cpu().detach().numpy(), [1.0, 3.0, 4.0, 0.0, 0.0]),
+                    np.array_equal(state[2].cpu().detach().numpy(), [1.0, 3.0, 5.0, 2.0, 2.0])
                 ]
             elif self.phase == "second-layer":
                 f = state[11]
