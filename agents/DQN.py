@@ -79,8 +79,8 @@ class DeepQNet(nn.Module):
             device=state.device
         )
 
-    def forward(self, state: torch.Tensor) -> torch.Tensor:
-        progress: torch.Tensor = self.get_progress(state)
+    def forward(self, state: torch.Tensor, progress: torch.Tensor) -> torch.Tensor:
+        #progress: torch.Tensor = self.get_progress(state)
 
         embedded: torch.Tensor = self.embedding(state)
         attn_output, _ = self.attention(embedded, embedded, embedded)
@@ -95,7 +95,7 @@ class DeepQNet(nn.Module):
 
 
 Transition = namedtuple('Transition',
-                        ('state', 'action', 'next_state', 'reward'))
+                        ('state', 'action', 'next_state', 'reward', 'progress'))
 
 class ReplayMemory(object):
     def __init__(self, capacity):
@@ -150,10 +150,11 @@ class DQN(Agent):
         non_final_next_states = torch.cat([s for s in batch.next_state if s is not None])
 
         state_batch = torch.cat(batch.state)
+        progress_batch = torch.cat(batch.progress)
         action_batch = torch.cat(batch.action)
         reward_batch = torch.cat(batch.reward)
 
-        state_action_values = self.policy_net(state_batch).gather(1, action_batch)
+        state_action_values = self.policy_net(state_batch, progress_batch).gather(1, action_batch)
 
         next_state_values = torch.zeros(self.batch_size, device=self.device)
         with torch.no_grad():
@@ -168,7 +169,7 @@ class DQN(Agent):
         torch.nn.utils.clip_grad_value_(self.policy_net.parameters(), 100)
         self.optimizer.step()
 
-    def action(self, state: np.ndarray) -> torch.Tensor:
+    def action(self, state: np.ndarray, progress: np.ndarray) -> torch.Tensor:
         sample = random.random()
         eps_threshold = self.eps_end + (self.eps_start - self.eps_end) * \
             math.exp(-1. * self.steps / self.eps_decay)
@@ -177,8 +178,9 @@ class DQN(Agent):
         result = None
         if sample > eps_threshold:
             state = self.state_to_tensor(state)
+            progress = torch.from_numpy(progress).float().to(self.device)
             with torch.no_grad():
-                result = self.policy_net.forward(state).argmax().unsqueeze(0)
+                result = self.policy_net.forward(state, progress).argmax().unsqueeze(0)
         else:
             result = torch.tensor(
                 data=[random.randint(0, self.env.action_space.shape[0] - 1)],
@@ -191,13 +193,15 @@ class DQN(Agent):
             rewards = {}
             state = self.env.reset()
             state = self.env.state2
+            progress = self.env.algorithm.status()
 
             current_reward = self.env.algorithm.reward()
             for t in count():
-                action: torch.Tensor = self.action(state)
+                action: torch.Tensor = self.action(state, progress)
                 move: str = self.action_to_move(action.item())
                 obs, reward, done = self.env.step(move)
                 obs = self.env.state2
+                progress = self.env.algorithm.status()
 
                 if reward not in rewards:
                     rewards[reward] = 1
@@ -217,7 +221,8 @@ class DQN(Agent):
                     self.state_to_tensor(state),
                     action,
                     self.state_to_tensor(next_state) if next_state is not None else None,
-                    torch_current_reward
+                    torch_current_reward,
+                    torch.from_numpy(progress).float().to(self.device)
                 )
                 state = next_state
 
