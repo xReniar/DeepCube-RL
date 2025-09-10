@@ -6,12 +6,12 @@ import yaml
 if __name__ == "__main__":
     args = yaml.safe_load(open("config.yaml", "r"))
 
-    phase = "cross"
+    phase = "f2l"
 
     env = Environment(
         phase=phase,
         args=args["environment"]
     )
 
-    agent = DQN(env, args["DQN"][phase])
+    agent = DQN(env, phase, args)
     agent.train()
