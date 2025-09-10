@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from torch import optim
 from .agent import Agent
 from collections import namedtuple, deque
@@ -9,7 +8,6 @@ from environment import Environment
 import random
 import numpy as np
 import math
-import matplotlib.pyplot as plt
 
 
 class DeepQNet(nn.Module):
@@ -34,17 +32,9 @@ class DeepQNet(nn.Module):
             nn.ReLU(inplace=True)
         )
         self.output_layer = nn.Sequential(
-            nn.Linear(hidden_dim * 26, hidden_dim * 12),
+            nn.Linear(hidden_dim * 26, hidden_dim * 2),
             nn.ReLU(inplace=True),
-            nn.Linear(hidden_dim * 12, hidden_dim * 6),
-            nn.ReLU(inplace=True),
-            nn.Linear(hidden_dim * 6, hidden_dim * 3),
-            nn.ReLU(inplace=True),
-            nn.Linear(hidden_dim * 3, hidden_dim),
-            nn.ReLU(inplace=True),
-            nn.Linear(hidden_dim, hidden_dim // 2),
-            nn.ReLU(inplace=True),
-            nn.Linear(hidden_dim // 2, output_dim)
+            nn.Linear(hidden_dim * 2, output_dim)
         )
 
     def forward(self, state: torch.Tensor) -> torch.Tensor:
