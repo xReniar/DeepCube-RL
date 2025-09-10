@@ -13,5 +13,5 @@ if __name__ == "__main__":
         args=args["environment"]
     )
 
-    agent = DQN(env, args[phase])
+    agent = DQN(env, args["DQN"][phase])
     agent.train()
