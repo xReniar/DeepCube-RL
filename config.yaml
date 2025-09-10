@@ -5,7 +5,7 @@ DQN:
     cross:
         mem_capacity: 100000
         gamma: 0.6
-        batch_size: 8192
+        batch_size: 4096
         eps_start: 0.9
         eps_end: 0.01
         eps_decay: 5000
@@ -14,8 +14,8 @@ DQN:
         num_episodes: 600
     f2l:
         mem_capacity: 100000
-        gamma: 0.6
-        batch_size: 8192
+        gamma: 0.8
+        batch_size: 4096
         eps_start: 0.9
         eps_end: 0.01
         eps_decay: 5000
