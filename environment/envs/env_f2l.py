@@ -1,6 +1,8 @@
 from ..env_base import EnvBase
 from ..algorithm import Algorithm
 import numpy as np
+import json
+import random
 
 
 @EnvBase.register_model("f2l")
@@ -36,4 +38,18 @@ class F2L_Env(EnvBase):
         return sum(first_layer) + sum(second_layer) == 8
 
     def scramble(self):
-        pass
+        dataset: dict = json.load(open("data/dataset.json", "r"))
+        choice = str(random.randint(1, len(dataset.keys())))
+
+        selection = dataset[choice]
+
+        '''reverse_history = self.cube.reverse_history()
+        print(len(reverse_history))
+        self.cube.rotate(reverse_history)'''
+        self.cube.reset()
+
+        self.cube.rotate(selection["scramble"])
+        self.cube.rotate(selection["solution"]["cross"])
+
+        self.state = np.array(list(self.cube.get_kociemba_facelet_positions()))
+        self.state2 = self._get_state()
