@@ -57,33 +57,27 @@ class LBL(Algorithm):
         
         return cross_reward
 
-    def first_layer(self) -> int:
+    def f2l(self) -> int:
         faces = self.cube_faces()
 
-        piece_1 = (faces["front"][8] == faces["front"][4]) and (faces["right"][6] == faces["right"][4])
-        piece_2 = (faces["right"][8] == faces["right"][4]) and (faces["back"][6] == faces["back"][4])
-        piece_3 = (faces["back"][8] == faces["back"][4]) and (faces["left"][6] == faces["left"][4])
-        piece_4 = (faces["left"][8] == faces["left"][4]) and (faces["front"][6] == faces["front"][4])
-
-        sum_reward = piece_1 + piece_2 + piece_3 + piece_4
-        if sum_reward == 4:
-            return sum_reward * 10
+        first_layer = [
+            int(faces["front"][8] == faces["front"][4]) and (faces["right"][6] == faces["right"][4]),
+            int(faces["right"][8] == faces["right"][4]) and (faces["back"][6] == faces["back"][4]),
+            int(faces["back"][8] == faces["back"][4]) and (faces["left"][6] == faces["left"][4]),
+            int(faces["left"][8] == faces["left"][4]) and (faces["front"][6] == faces["front"][4])
+        ]
+        second_layer = [
+            int(faces["front"][5] == faces["front"][4]) and (faces["right"][3] == faces["right"][4]),
+            int(faces["right"][5] == faces["right"][4]) and (faces["back"][3] == faces["back"][4]),
+            int(faces["back"][5] == faces["back"][4]) and (faces["left"][3] == faces["left"][4]),
+            int(faces["left"][5] == faces["left"][4]) and (faces["front"][3] == faces["front"][4])
+        ]
+        if sum(first_layer) < 4:
+            return sum(first_layer)
+        elif sum(first_layer) + sum(second_layer) == 8:
+            return 100
         else:
-            return sum_reward
-
-    def second_layer(self) -> int:
-        faces = self.cube_faces()
-
-        piece_1 = (faces["front"][5] == faces["front"][4]) and (faces["right"][3] == faces["right"][4])
-        piece_2 = (faces["right"][5] == faces["right"][4]) and (faces["back"][3] == faces["back"][4])
-        piece_3 = (faces["back"][5] == faces["back"][4]) and (faces["left"][3] == faces["left"][4])
-        piece_4 = (faces["left"][5] == faces["left"][4]) and (faces["front"][3] == faces["front"][4])
-
-        sum_reward = piece_1 + piece_2 + piece_3 + piece_4
-        if sum_reward == 4:
-            return sum_reward * 10
-        else:
-            return sum_reward
+            return sum(first_layer) * 50 + sum(second_layer)
 
     def top_cross(self) -> int:
         faces = self.cube_faces()
@@ -94,5 +88,8 @@ class LBL(Algorithm):
     def top_corners(self) -> int:
         faces = self.cube_faces()
     
-    def reward(self) -> int:
-        return self.bottom_cross()
+    def reward(self, **kwargs) -> int:
+        if kwargs["lbl_phase"] == 0:
+            return self.bottom_cross()
+        if kwargs["lbl_phase"] == 1:
+            return self.f2l()
