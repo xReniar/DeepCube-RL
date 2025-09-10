@@ -8,18 +8,17 @@ from environment import Environment
 import random
 import numpy as np
 import math
+import os
 
 
 class DeepQNet(nn.Module):
     def __init__(
         self,
-        phase: str,
         input_dim: int,
         hidden_dim: int,
         output_dim: int
     ) -> None:
         super().__init__()
-        self.phase = phase
         self.embedding = nn.Linear(input_dim, hidden_dim)
         self.attention = nn.MultiheadAttention(
             embed_dim=hidden_dim,
@@ -69,9 +68,11 @@ class DQN(Agent):
     def __init__(
         self,
         env: Environment,
+        phase: str,
         args: dict
     ) -> None:
-        super().__init__(env, args)
+        super().__init__(env, phase)
+        args = args["DQN"][phase]
         self.steps = 0
         self.gamma: float = float(args["gamma"])
         self.batch_size: int = int(args["batch_size"])
@@ -81,9 +82,8 @@ class DQN(Agent):
         self.tau: float = float(args["tau"])
         self.lr: float = float(args["lr"])
         self.num_episodes: int = int(args["num_episodes"])
-
-        self.policy_net = DeepQNet("cross", 5, 128, self.env.action_space.shape[0]).to(self.device)
-        self.target_net = DeepQNet("cross", 5, 128, self.env.action_space.shape[0]).to(self.device)
+        self.policy_net = DeepQNet(5, 128, self.env.action_space.shape[0]).to(self.device)
+        self.target_net = DeepQNet(5, 128, self.env.action_space.shape[0]).to(self.device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         
         self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=self.lr, amsgrad=True)
@@ -186,5 +186,6 @@ class DQN(Agent):
 
                 if done:
                     break
-                
-        torch.save(self.policy_net.state_dict(), 'models/DQN/dqn_policy_net(cross).pth')
+        
+        os.makedirs("models/DQN", exist=True)
+        torch.save(self.policy_net.state_dict(), f"models/DQN/dqn_policy_net({self.phase}).pth")
