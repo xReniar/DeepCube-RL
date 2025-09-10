@@ -13,7 +13,7 @@ class F2L_Env(EnvBase):
             "R' U R", "L U' L'", "B' U B", "F U' F'",                   # insert moves good orientation case 2 (first layer)
             "F' U2 F U2", "R' U2 R U2", "B' U2 B U2", "L' U2 L U2",     # orient moves bad orientation (first layer)
             "R U' R' U'", "F' U F U", "B U' B' U'", "R' U R U",         # insert moves (second layer) 
-            "L U' L' U'", "B' U B U", "F U' F' U'", "L' U L U"          # insert moves (second layer)
+            "L U' L' U'", "B' U B U", "F U' F' U'", "L' U L U",         # insert moves (second layer)
             "U", "U'"
         ])
         super().__init__(args)
