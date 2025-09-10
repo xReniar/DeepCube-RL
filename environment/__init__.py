@@ -1,6 +1,7 @@
-from .cube_env import Environment
+from .env import Environment, Phase
 
 
 __all__ = [
-    "Environment"
+    "Environment",
+    "Phase"
 ]
