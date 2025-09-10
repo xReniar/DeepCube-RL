@@ -8,11 +8,11 @@ class Agent(ABC):
     def __init__(
         self,
         env: Environment,
-        args: dict
+        phase: str
     ) -> None:
         super().__init__()
         self.env = env
-        self.args = args
+        self.phase = phase
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else
             "mps" if torch.mps.is_available() else
