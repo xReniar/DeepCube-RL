@@ -12,6 +12,29 @@ DQN:
     lr: 3e-5
     num_episodes: 600
 
+cross:
+    mem_capacity: 100000
+    gamma: 0.6
+    batch_size: 8192
+    eps_start: 0.9
+    eps_end: 0.01
+    eps_decay: 5000
+    tau: 0.005
+    lr: 3e-5
+    num_episodes: 600
+f2l:
+    mem_capacity: 100000
+    gamma: 0.6
+    batch_size: 8192
+    eps_start: 0.9
+    eps_end: 0.01
+    eps_decay: 5000
+    tau: 0.005
+    lr: 3e-5
+    num_episodes: 600
+
+
+
 PPO:
     total_timesteps: 200000000
     timesteps_per_batch: 8192
