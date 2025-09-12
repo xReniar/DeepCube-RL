@@ -4,7 +4,6 @@ from torch import optim
 from .agent import Agent
 from collections import namedtuple, deque
 from itertools import count
-from environment import Environment
 import random
 import numpy as np
 import math
@@ -67,7 +66,7 @@ class ReplayMemory(object):
 class DQN(Agent):
     def __init__(
         self,
-        env: Environment,
+        env,
         phase: str,
         args: dict
     ) -> None:
@@ -125,8 +124,7 @@ class DQN(Agent):
 
     def action(self, state: np.ndarray) -> torch.Tensor:
         sample = random.random()
-        eps_threshold = self.eps_end + (self.eps_start - self.eps_end) * \
-            math.exp(-1. * self.steps / self.eps_decay)
+        eps_threshold = self.eps_end + (self.eps_start - self.eps_end) * math.exp(-1. * self.steps / self.eps_decay)
         self.steps += 1
 
         result = None
@@ -187,5 +185,5 @@ class DQN(Agent):
                 if done:
                     break
         
-        os.makedirs("models/DQN", exist=True)
-        torch.save(self.policy_net.state_dict(), f"models/DQN/dqn_policy_net({self.phase}).pth")
+        os.makedirs("models/DQN", exist_ok=True)
+        torch.save(self.policy_net.state_dict(), f"models/DQN/{self.phase}_net.pth")
