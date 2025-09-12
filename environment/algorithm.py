@@ -98,7 +98,7 @@ class Algorithm:
         elif sum(first_layer) + sum(second_layer) == 8:
             return 100
         else:
-            return sum(first_layer) * 50 + sum(second_layer)
+            return sum(first_layer) * 10 + sum(second_layer) * 10
 
     def _top_cross(self) -> int:
         faces = self.cube_faces()
