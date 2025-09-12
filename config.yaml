@@ -25,13 +25,22 @@ DQN:
 
 
 PPO:
-    total_timesteps: 200000000
-    timesteps_per_batch: 8192
-    max_timesteps_per_episode: 4096
-    gamma: 0.6
-    lr: 0.005
-    n_updates_per_iteration: 5
-    clip: 0.2
+    cross:
+        total_timesteps: 200000000
+        timesteps_per_batch: 8192
+        max_timesteps_per_episode: 4096
+        gamma: 0.6
+        lr: 0.005
+        n_updates_per_iteration: 5
+        clip: 0.2
+    f2l:
+        total_timesteps: 200000000
+        timesteps_per_batch: 4096
+        max_timesteps_per_episode: 4096
+        gamma: 0.6
+        lr: 0.005
+        n_updates_per_iteration: 5
+        clip: 0.2
 
 SA2C:
     alpha: 0.0003
