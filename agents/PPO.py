@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
+import os
 import torch.optim as optim
 from .agent import Agent
 from torch.distributions import MultivariateNormal
@@ -181,3 +181,6 @@ class PPO(Agent):
                 self.critic_optim.zero_grad()
                 critic_loss.backward()
                 self.critic_optim.step()
+
+        os.makedirs("models/PPO", exist_ok=True)
+        torch.save(self.actor.state_dict(), f"models/PPO/{self.phase}_net.pth")
