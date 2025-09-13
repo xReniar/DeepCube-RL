@@ -1,4 +1,3 @@
-from .algorithm import Algorithm
 from abc import ABC, abstractmethod
 from magiccube import Cube
 from .dummy_cube import DummyCube
@@ -52,7 +51,7 @@ class EnvBase(ABC):
                 if (x, y, z) in permutations:
                     piece_id = id
 
-            state.append([x, y, z, piece_id, *self._piece_mapper[i], i])
+            state.append([x, y, z, piece_id, i])
         return np.array([state])
 
     def reset(self) -> np.ndarray[str]:
