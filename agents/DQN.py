@@ -138,9 +138,6 @@ class DQN(Agent):
                 device=self.device
             )
         return result.unsqueeze(0)
-    
-    def load_experiences(self, data_path: str):
-        pass
         
     def train(self) -> None:
         for _ in range(self.num_episodes):
