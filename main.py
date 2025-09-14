@@ -1,31 +1,54 @@
 from environment import Environment
 from agents import A2C, DQN, PPO
+from agents import DeepQNet
 import json
 import torch
+import numpy as np
 import yaml
 
 
 def load_experience(agent: DQN, env):
-    if agent.phase != "cross" and isinstance(agent, DQN):
-        return
-    
-    dataset = json.load(open("data/dataset.json", "r"))
-    for _, data in enumerate(list(map(lambda x: x[1], dataset.items()))[:6644]):
-        env.cube.reset()
-        env.cube.rotate(data["scramble"])
+    if agent.phase == "cross":
+        dataset = json.load(open("data/dataset.json", "r"))
+        for _, data in enumerate(list(map(lambda x: x[1], dataset.items()))[:6644]):
+            env.cube.reset()
+            env.cube.rotate(data["scramble"])
 
-        cross_solution = data["solution"]["cross"]
-        for move in cross_solution.split():
-            state = env.state2
-            next_state, reward, done = env.step(move)
-            next_state = env.state2
+            cross_solution = data["solution"]["cross"]
+            for move in cross_solution.split():
+                state = env.state2
+                next_state, reward, _ = env.step(move)
+                next_state = env.state2
 
-            agent.memory.push(
-                agent.state_to_tensor(state),
-                torch.tensor(list(map(lambda x: int(x == move), env.action_space))).unsqueeze(0),
-                agent.state_to_tensor(next_state) if next_state is not None else None,
-                torch.tensor([reward], device=agent.device)
-            )
+                agent.memory.push(
+                    agent.state_to_tensor(state),
+                    torch.tensor([np.where(env.action_space == move)[0][0]], device=agent.device).unsqueeze(0),
+                    agent.state_to_tensor(next_state) if next_state is not None else None,
+                    torch.tensor([reward], device=agent.device).float()
+                )
+
+    if agent.phase == "f2l":
+        # load trained model
+        net = DeepQNet(5, 128, env.action_space.shape[0])
+        net.load_state_dict(torch.load("models/DQN/dqn_policy_net(f2l).pth"))
+        net.eval()
+
+        dataset = json.load(open("data/dataset.json", "r"))
+        for _, data in enumerate(list(map(lambda x: x[1], dataset.items()))[:6644]):
+            env.cube.reset()
+            env.cube.rotate(data["scramble"])
+            env.cube.rotate(data["solution"]["cross"])
+            
+            done = False
+            while not done:
+                with torch.no_grad():
+                    action = agent.action(env.state2)
+                move = agent.action_to_move(action.item())
+                obs, reward, done = env.step()
+                obs = env.state2
+
+                
+
 
 if __name__ == "__main__":
     args = yaml.safe_load(open("config.yaml", "r"))
@@ -38,5 +61,5 @@ if __name__ == "__main__":
     )
 
     agent = DQN(env, phase, args)
-    print(len(agent.memory))
+    #load_experience(agent, env)
     #agent.train()
