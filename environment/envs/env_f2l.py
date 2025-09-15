@@ -11,7 +11,8 @@ class F2L_Env(EnvBase):
         self.action_space = np.array([
             "L' U L", "R U' R'", "F' U F", "B U' B'",                   # insert moves good orientation case 1 (first layer)
             "R' U R", "L U' L'", "B' U B", "F U' F'",                   # insert moves good orientation case 2 (first layer)
-            "F' U2 F U2", "R' U2 R U2", "B' U2 B U2", "L' U2 L U2",     # orient moves bad orientation (first layer)
+            "F' U2 F U2 R U' R'", "R' U2 R U2 B U' B'",                 # insert moves bad orientation (first layer)
+            "B' U2 B U2 L U' L'", "L' U2 L U2 F U' F'",                 # insert moves bad orientation (first layer)
             "R U' R' U'", "F' U F U", "B U' B' U'", "R' U R U",         # insert moves (second layer) 
             "L U' L' U'", "B' U B U", "F U' F' U'", "L' U L U",         # insert moves (second layer)
             "U", "U'"
