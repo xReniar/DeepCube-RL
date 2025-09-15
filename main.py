@@ -17,8 +17,13 @@ def load_experience(agent: DQN, env):
             cross_solution = data["solution"]["cross"]
             for move in cross_solution.split():
                 state = env.state2
-                next_state, reward, _ = env.step(move)
-                next_state = env.state2
+                obs, reward, _ = env.step(move)
+                obs = env.state2
+
+                if done:
+                    next_state = None
+                else:
+                    next_state = obs
 
                 agent.memory.push(
                     agent.state_to_tensor(state),
@@ -44,10 +49,21 @@ def load_experience(agent: DQN, env):
                 with torch.no_grad():
                     action = agent.action(env.state2)
                 move = agent.action_to_move(action.item())
+                state = env.state2
                 obs, reward, done = env.step()
                 obs = env.state2
 
-                
+                if done:
+                    next_state = None
+                else:
+                    next_state = obs
+
+                agent.memory.push(
+                    agent.state_to_tensor(state),
+                    torch.tensor(),
+                    agent.state_to_tensor(next_state) if next_state is not None else None,
+                    torch.tensor([reward], device=agent.device).float()
+                )
 
 
 if __name__ == "__main__":
