@@ -86,7 +86,7 @@ def load_experience(agent: DQN, env):
                 #print(env.cube)
                 #print(solution)
             
-            if len(agent.memory) > 80000:
+            if len(agent.memory) > 90000:
                 break
             
 
