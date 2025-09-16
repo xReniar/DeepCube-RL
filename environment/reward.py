@@ -1,7 +1,7 @@
 from magiccube import Cube
 
 
-class Algorithm:
+class Reward:
     def __init__(
         self,
         cube: Cube,
