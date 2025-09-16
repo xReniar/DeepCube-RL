@@ -13,9 +13,11 @@ class F2L_Env(EnvBase):
             "R' U R", "L U' L'", "B' U B", "F U' F'",                   # insert moves good orientation case 2 (first layer)
             "F' U2 F U2 R U' R'", "R' U2 R U2 B U' B'",                 # insert moves bad orientation (first layer)
             "B' U2 B U2 L U' L'", "L' U2 L U2 F U' F'",                 # insert moves bad orientation (first layer)
-            "R U' R' U'", "F' U F U", "B U' B' U'", "R' U R U",         # insert moves (second layer) 
-            "L U' L' U'", "B' U B U", "F U' F' U'", "L' U L U",         # insert moves (second layer)
-            "U", "U'"
+            "R U' R' U' F' U F", "B U' B' U' R' U R",                   # insert moves (second layer)
+            "L U' L' U' B' U B", "F U' F' U' L' U L",                   # insert moves (second layer)
+            "F' U F U R U' R'", "R' U R U B U' B'",                     # insert moves (second layer)
+            "B' U B U L U' L'", "L' U L U F U' F'",                     # insert moves (second layer)
+            "U", "U'", "U2"
         ])
         super().__init__(args)
         self.algorithm: Reward = Reward(self.cube, "f2l")
