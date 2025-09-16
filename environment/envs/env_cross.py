@@ -1,5 +1,5 @@
 from ..env_base import EnvBase
-from ..algorithm import Algorithm
+from ..reward import Reward
 import numpy as np
 import random
 
@@ -12,7 +12,7 @@ class Cross_Env(EnvBase):
             "U'", "D'", "F'", "R'", "B'", "L'"
         ])
         super().__init__(args)
-        self.algorithm: Algorithm = Algorithm(self.cube, "cross")
+        self.algorithm: Reward = Reward(self.cube, "cross")
 
     def is_terminated(self) -> bool:
         faces = self.algorithm.cube_faces()

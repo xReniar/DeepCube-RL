@@ -1,5 +1,5 @@
 from ..env_base import EnvBase
-from ..algorithm import Algorithm
+from ..reward import Reward
 import numpy as np
 import json
 import random
@@ -18,7 +18,7 @@ class F2L_Env(EnvBase):
             "U", "U'"
         ])
         super().__init__(args)
-        self.algorithm: Algorithm = Algorithm(self.cube, "f2l")
+        self.algorithm: Reward = Reward(self.cube, "f2l")
 
     def is_terminated(self) -> bool:
         faces = self.algorithm.cube_faces()
