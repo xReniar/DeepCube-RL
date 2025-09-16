@@ -39,6 +39,6 @@ def mov(moveset: list, c: int):
 
 cube = Cube()
 
-moves = "F' U F U"
+moves = "F' U F U R U' R'"
 for i in range(1, 4):
     print(" ".join(mov(moves.split(), i)))
