@@ -93,12 +93,37 @@ class Algorithm:
             int(faces["back"][5] == faces["back"][4]) and (faces["left"][3] == faces["left"][4]),
             int(faces["left"][5] == faces["left"][4]) and (faces["front"][3] == faces["front"][4])
         ]
-        if sum(first_layer) < 4:
-            return sum(first_layer)
-        elif sum(first_layer) + sum(second_layer) == 8:
+
+        # f2l done
+        if sum(first_layer) + sum(second_layer) == 8:
             return 100
+        
+        # first layer still not done
+        if sum(first_layer) < 4:
+            correct_counter = [
+                int((faces["back"][2] == faces["bottom"][4] and faces["left"][0] == faces["front"][4])),           # case 1
+                int((faces["front"][2] == faces["left"][4] and faces["right"][0] == faces["bottom"][4])),    
+                int((faces["left"][2] == faces["bottom"][4] and faces["front"][0] == faces["right"][4])),          # case 2
+                int((faces["right"][2] == faces["front"][4] and faces["back"][0] == faces["bottom"][4])),
+                int((faces["front"][2] == faces["bottom"][4] and faces["right"][0] == faces["back"][4])),          # case 3
+                int((faces["back"][2] == faces["right"][4] and faces["left"][0] == faces["bottom"][4])),
+                int((faces["right"][2] == faces["bottom"][4] and faces["back"][0] == faces["left"][4])),           # case 4
+                int((faces["left"][2] == faces["back"][4] and faces["front"][0] == faces["bottom"][4]))
+            ]
+            return sum(first_layer) * 5 + sum(correct_counter)
         else:
-            return sum(first_layer) * 10 + sum(second_layer) * 10
+            # first layer done, second layer not done
+            correct_counter = [
+                int((faces["back"][1] == faces["left"][4] and faces["top"][1] == faces["front"][4])),           # case 1
+                int((faces["right"][1] == faces["front"][4] and faces["top"][5] == faces["left"][4])),    
+                int((faces["left"][1] == faces["front"][4] and faces["top"][3] == faces["right"][4])),          # case 2
+                int((faces["back"][1] == faces["right"][4] and faces["top"][1] == faces["front"][4])),
+                int((faces["front"][1] == faces["right"][4] and faces["top"][7] == faces["back"][4])),          # case 3
+                int((faces["left"][1] == faces["back"][4] and faces["top"][3] == faces["right"][4])),
+                int((faces["right"][1] == faces["back"][4] and faces["top"][5] == faces["left"][4])),           # case 4
+                int((faces["front"][1] == faces["left"][4] and faces["top"][7] == faces["back"][4]))
+            ]
+            return sum(first_layer) * 10 + sum(second_layer) * 10 + sum(correct_counter)
 
     def _top_cross(self) -> int:
         faces = self.cube_faces()
