@@ -6,7 +6,7 @@ import json
 import torch
 import numpy as np
 import yaml
-import time
+import argparse
 
 
 def load_experience(agent: DQN, env):
@@ -89,12 +89,29 @@ def load_experience(agent: DQN, env):
             if len(agent.memory) > 90000:
                 break
             
+def parse_args():
+    parser = argparse.ArgumentParser(description='Train DQN agent for Rubik\'s Cube')
+    parser.add_argument(
+        "--phase",
+        required=True,
+        choices=["cross", "f2l"],
+        help="Phase to train"
+    )
+    parser.add_argument(
+        "--load-experience",
+        default=None,
+        help="Wheter to load experience",
+        action="store_true"
+    )
+
+    return parser.parse_args()
 
 
 if __name__ == "__main__":
+    args_cmd = parse_args()
     args = yaml.safe_load(open("config.yaml", "r"))
 
-    phase = "f2l"
+    phase = args_cmd.phase
 
     env = Environment(
         phase=phase,
@@ -103,5 +120,6 @@ if __name__ == "__main__":
 
     agent = DQN(env, phase, args)
 
-    load_experience(agent, env)
-    #agent.train()
+    if args_cmd.load_experience:
+        load_experience(agent, env)
+    agent.train()
