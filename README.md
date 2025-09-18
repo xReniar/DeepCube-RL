@@ -7,6 +7,11 @@ This project uses `python3` and `nodejs`, check if they are installed:
 python3 --version
 node --version
 ```
+Then install the requirements for `python` and `nodejs`:
+```bash
+pip install -r requirements.txt
+npm install
+```
 
 ## Create ground truth
 To create the ground truth and format it correctly use this commands:
@@ -21,11 +26,6 @@ python3 format_data.py
 ```
 
 ## How to use
-First install the requirements:
-```bash
-pip install -r requirements.txt
-```
-
 This project creates environment only for `cross` and `f2l` steps. After training a `phase.pth` will be saved inside `./models/DQN/`. To train run `train.py` with the following args:
 - `--phase`: this argument is mandatory and specifies the phase to train, the possible values are `cross` and `f2l`
 - `--load-experience`: this argument specifies whether to load moves from an online solver.
