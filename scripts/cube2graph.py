@@ -143,8 +143,8 @@ def visualize_graph(G: nx.Graph):
     plt.tight_layout()
     plt.show()
 
-'''
-cube = Cube()
-G = cube2graph(cube)
-visualize_graph(G)
-'''
+
+if __name__ == "__main__":
+    cube = Cube()
+    G = cube2graph(cube)
+    visualize_graph(G)
