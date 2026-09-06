@@ -1,8 +1,6 @@
 from magiccube import Cube
 import networkx as nx
 import matplotlib.pyplot as plt
-from torch_geometric.data import Data
-from torch_geometric.utils import from_networkx
 
 COLORS = {
     'W': 1,
