@@ -1,0 +1,25 @@
+[Preparare dataset per training modello embedding]
+- scrivere codice che mappa le posizioni dei pezzi
+- scrivere codice per la creazione di 100k stati per il training
+
+[Preparazione modello base]
+- scrivere la rete neurale con PYG che dato in input il grafo mi restituisce un vettore (1, 26):
+    - [1] per ogni pezzo corretto
+    - [0] per ogni pezzo nello slot corretto ma orientato male
+    - [-1] per ogni pezzo nello slot sbagliato
+- scrivere pipeline per il training del modello
+
+[Preparazione environment reward]
+- scrivere codice che risolve il cubo di rubik assegnando un reward per ogni mossa
+ (1) cross
+ (2) f2l (beginner)
+ (3) yellow cross
+ (4) center orientation + angle orientation
+ (5) sexy move
+
+ (1) cross
+ (2) f2l (advanced)
+ (3) oll
+ (4) pll
+
+[Preparazione modelli per RL di ogni step] ?
