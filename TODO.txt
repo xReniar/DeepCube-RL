@@ -1,5 +1,4 @@
 [Preparare dataset per training modello embedding]
-- scrivere codice che mappa le posizioni dei pezzi
 - scrivere codice per la creazione di 100k stati per il training
 
 [Preparazione modello base]
