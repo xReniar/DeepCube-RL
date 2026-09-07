@@ -1,9 +1,16 @@
 from torch_geometric.nn import GCNConv, global_mean_pool
 from torch_geometric.utils import from_networkx
+import torch
 import torch.nn as nn
 from magiccube import Cube
 from cube2graph import cube2graph
 
+
+device = (
+    "cuda" if torch.cuda.is_available() else
+    "mps" if torch.backends.mps.is_available() else
+    "cpu"
+)
 
 class BaseModel(nn.Module):
     def __init__(self):
@@ -34,8 +41,10 @@ class BaseModel(nn.Module):
 
 cube = Cube()
 G = from_networkx(cube2graph(cube))
+G.to(device)
 
 model = BaseModel()
+model.to(device)
 output = model(G)
 
-print(output.shape)
+print(output)
