@@ -1,4 +1,5 @@
 magiccube==1.2.0
+wheel
 torch
 torch-geometric
 torch-scatter
