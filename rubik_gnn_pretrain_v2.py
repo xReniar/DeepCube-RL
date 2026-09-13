@@ -380,11 +380,10 @@ def verify_piece_graph(model, n_samples=500, n_moves=25, device='cpu'):
 
 
 if __name__ == "__main__":
-    torch.manual_seed(0)
-    random.seed(0)
+    torch.manual_seed(20)
+    random.seed(20)
 
-    model = train(n_steps=2000, batch_size=64, curriculum=True)
-    verify_piece_graph(model, n_samples=500, n_moves=25)
+    model = train(n_steps=4000, batch_size=64, curriculum=True)
+    verify_piece_graph(model, n_samples=1000, n_moves=25)
 
-    torch.save(model.encoder.state_dict(), "sticker_encoder_pretrained.pt")
-    print("Encoder salvato in sticker_encoder_pretrained.pt")
+    torch.save(model.encoder.state_dict(), "base_model.pt")
