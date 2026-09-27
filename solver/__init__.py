@@ -24,7 +24,7 @@ class Solver:
     def solve(self) -> list[str]:
         moves = []
 
-        while not self.env.is_terminated():
+        while not self.env.is_terminated(self.cube):
             _curr_reward = self.env.evaluate(self.cube)
             neighbor_reward_list = []
             for i, neighbor in enumerate(self._generate_neighbors()):
@@ -36,7 +36,7 @@ class Solver:
 
             neighbor_reward_list = list(sorted(
                 neighbor_reward_list,
-                lambda x: x[1],
+                key=lambda x: x[1],
                 reverse=True
             ))
 
