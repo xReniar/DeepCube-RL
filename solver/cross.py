@@ -10,34 +10,46 @@ class CrossEnv(Environment):
         value = 0
         
         for i in range(4):
+            faces = {
+                "F": cube.get_face(Face.F),
+                "R": cube.get_face(Face.R),
+                "B": cube.get_face(Face.B),
+                "L": cube.get_face(Face.L),
+                "U": cube.get_face(Face.U),
+                "D": cube.get_face(Face.D)
+            }
+
             # front face base cases
-            value += (cube.get_face(Face.F)[2][1] == self.color[i] and cube.get_face(Face.D)[0][1] == Color.W) * 25
-            value += ((cube.get_face(Face.F)[1][0] == self.color[i] and cube.get_face(Face.L)[1][2] == Color.W)
+            value += (faces["F"][2][1] == self.color[i] and faces["D"][0][1] == Color.W) * 25
+            value += ((faces["F"][1][0] == self.color[i] and faces["L"][1][2] == Color.W)
                        or
-                      (cube.get_face(Face.F)[1][2] == self.color[i] and cube.get_face(Face.R)[1][0] == Color.W)) * 20
-            value += (cube.get_face(Face.F)[0][1] == self.color[i] and cube.get_face(Face.U)[2][1] == Color.W) * 10
+                      (faces["F"][1][2] == self.color[i] and faces["R"][1][0] == Color.W)) * 20
+            value += (faces["F"][0][1] == self.color[i] and faces["U"][2][1] == Color.W) * 10
     
             # front face base cases (1 move away)
-            value += ((cube.get_face(Face.U)[1][0] == Color.W and cube.get_face(Face.L)[0][1] == self.color[i])
+            value += ((faces["U"][1][0] == Color.W and faces["L"][0][1] == self.color[i])
                        or
-                      (cube.get_face(Face.U)[1][2] == Color.W and cube.get_face(Face.R)[0][1] == self.color[i])) * 7
-            value += ((cube.get_face(Face.U)[1][0] == self.color[i] and cube.get_face(Face.L)[0][1] == Color.W)
+                      (faces["U"][1][2] == Color.W and faces["R"][0][1] == self.color[i])) * 7
+            value += ((faces["U"][1][0] == self.color[i] and faces["L"][0][1] == Color.W)
                        or
-                      (cube.get_face(Face.U)[1][2] == self.color[i] and cube.get_face(Face.R)[0][1] == Color.W)) * 7
+                      (faces["U"][1][2] == self.color[i] and faces["R"][0][1] == Color.W)) * 7
     
             # front face base cases (2 move away)
-            value += (cube.get_face(Face.F)[0][1] == Color.W and cube.get_face(Face.U)[2][1] == self.color[i]) * 5
-            value += ((cube.get_face(Face.F)[1][0] == Color.W and cube.get_face(Face.L)[1][2] == self.color[i])
+            value += (faces["F"][0][1] == Color.W and faces["U"][2][1] == self.color[i]) * 5
+            value += ((faces["F"][1][0] == Color.W and faces["L"][1][2] == self.color[i])
                        or
-                      (cube.get_face(Face.F)[1][2] == Color.W and cube.get_face(Face.R)[1][0] == self.color[i])) * 3
+                      (faces["F"][1][2] == Color.W and faces["R"][1][0] == self.color[i])) * 3
     
             # case when piece is in the back
-            value += ((cube.get_face(Face.B)[1][2] == Color.W and cube.get_face(Face.L)[1][0] == self.color[i])
+            value += ((faces["B"][1][2] == Color.W and faces["L"][1][0] == self.color[i])
                        or
-                      (cube.get_face(Face.B)[1][0] == Color.W and cube.get_face(Face.R)[1][2] == self.color[i])) * 2
-            value += ((cube.get_face(Face.B)[1][2] == self.color[i] and cube.get_face(Face.L)[1][0] == Color.W)
+                      (faces["B"][1][0] == Color.W and faces["R"][1][2] == self.color[i])) * 2
+            value += ((faces["B"][1][2] == self.color[i] and faces["L"][1][0] == Color.W)
                        or
-                      (cube.get_face(Face.B)[1][0] == self.color[i] and cube.get_face(Face.R)[1][2] == Color.W)) * 2
+                      (faces["B"][1][0] == self.color[i] and faces["R"][1][2] == Color.W)) * 2
+
+            # special cases when inserting
+
 
             # rotate cube
             cube.rotate("y")
