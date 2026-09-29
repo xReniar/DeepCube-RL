@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from magiccube import Cube
 
 
 class Environment(ABC):
@@ -6,9 +7,9 @@ class Environment(ABC):
         pass
 
     @abstractmethod
-    def evaluate(self):
+    def evaluate(self, cube: Cube):
         pass
 
     @abstractmethod
-    def is_terminated(self) -> bool:
+    def is_terminated(self, cube: Cube) -> bool:
         pass
