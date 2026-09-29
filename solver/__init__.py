@@ -5,7 +5,8 @@ from copy import deepcopy
 
 
 MOVES = ["U", "U'", "F", "F'", "R", "R'",
-         "D", "D'", "B", "B'", "L", "L'"]
+         "D", "D'", "B", "B'", "L", "L'",
+         "U2", "F2", "R2", "D2", "B2", "L2"]
 
 
 _env = {
@@ -61,7 +62,9 @@ class Solver:
             neighbors.append(deepcopy(self.cube))
 
             # undo cube for next moves, if present
-            self.cube.rotate(move[:-1] if move.endswith("'") else move + "'")
+            self.cube.rotate(move if "2" in move
+                             else (move[:-1] if move.endswith("'")
+                             else move + "'"))
 
         return neighbors
 
