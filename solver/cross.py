@@ -23,8 +23,8 @@ class CrossEnv(Environment):
             value += (faces["F"][2][1] == self.color[i] and faces["D"][0][1] == Color.W) * 25
             value += ((faces["F"][1][0] == self.color[i] and faces["L"][1][2] == Color.W)
                        or
-                      (faces["F"][1][2] == self.color[i] and faces["R"][1][0] == Color.W)) * 20
-            value += (faces["F"][0][1] == self.color[i] and faces["U"][2][1] == Color.W) * 10
+                      (faces["F"][1][2] == self.color[i] and faces["R"][1][0] == Color.W)) * 21
+            value += (faces["F"][0][1] == self.color[i] and faces["U"][2][1] == Color.W) * 19
     
             # front face base cases (1 move away)
             value += ((faces["U"][1][0] == Color.W and faces["L"][0][1] == self.color[i])
@@ -49,7 +49,12 @@ class CrossEnv(Environment):
                       (faces["B"][1][0] == self.color[i] and faces["R"][1][2] == Color.W)) * 2
 
             # special cases when inserting
+            if(faces["F"][1][0] == self.color[i] and faces["L"][1][2] == Color.W):
+                pass
+                #value -= (faces["U"][2][1] == Color.W and faces["F"][0][1] != self.color[i - 1])
 
+            if(faces["F"][1][2] == self.color[i] and faces["R"][1][0] == Color.W):
+                pass
 
             # rotate cube
             cube.rotate("y")
