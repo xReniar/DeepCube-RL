@@ -4,7 +4,7 @@ from magiccube import Cube, Face, Color
 
 class CrossEnv(Environment):
     def __init__(self):
-        self.color = [Color.B, Color.R, Color.G, Color.O]
+        super().__init__()
 
     def evaluate(self, cube: Cube) -> int:
         value = 0
