@@ -38,7 +38,8 @@ class CrossEnv(Environment):
             value += (faces["F"][0][1] == Color.W and faces["U"][2][1] == self.color[i]) * 5
             value += ((faces["F"][1][0] == Color.W and faces["L"][1][2] == self.color[i])
                        or
-                      (faces["F"][1][2] == Color.W and faces["R"][1][0] == self.color[i])) * 3
+                      (faces["F"][1][2] == Color.W and faces["R"][1][0] == self.color[i])) * 4
+            value += (faces["B"][0][1] == Color.W and faces["U"][0][1] == self.color[i]) * 3
     
             # case when piece is in the back
             value += ((faces["B"][1][2] == Color.W and faces["L"][1][0] == self.color[i])
@@ -49,6 +50,9 @@ class CrossEnv(Environment):
                       (faces["B"][1][0] == self.color[i] and faces["R"][1][2] == Color.W)) * 2
 
             # special cases when inserting
+            if(faces["F"][0][1] == self.color[i] and faces["U"][2][1] == Color.W):
+                pass
+
             if(faces["F"][1][0] == self.color[i] and faces["L"][1][2] == Color.W):
                 pass
                 #value -= (faces["U"][2][1] == Color.W and faces["F"][0][1] != self.color[i - 1])
