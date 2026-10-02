@@ -23,41 +23,46 @@ class CrossEnv(Environment):
             value += (faces["F"][2][1] == self.color[i] and faces["D"][0][1] == Color.W) * 25
             value += ((faces["F"][1][0] == self.color[i] and faces["L"][1][2] == Color.W)
                        or
-                      (faces["F"][1][2] == self.color[i] and faces["R"][1][0] == Color.W)) * 21
-            value += (faces["F"][0][1] == self.color[i] and faces["U"][2][1] == Color.W) * 19
+                      (faces["F"][1][2] == self.color[i] and faces["R"][1][0] == Color.W)) * 20
+            value += (faces["F"][0][1] == self.color[i] and faces["U"][2][1] == Color.W) * 18
     
             # front face base cases (1 move away)
             value += ((faces["U"][1][0] == Color.W and faces["L"][0][1] == self.color[i])
                        or
-                      (faces["U"][1][2] == Color.W and faces["R"][0][1] == self.color[i])) * 7
+                      (faces["U"][1][2] == Color.W and faces["R"][0][1] == self.color[i])) * 5
             value += ((faces["U"][1][0] == self.color[i] and faces["L"][0][1] == Color.W)
                        or
-                      (faces["U"][1][2] == self.color[i] and faces["R"][0][1] == Color.W)) * 7
+                      (faces["U"][1][2] == self.color[i] and faces["R"][0][1] == Color.W)) * 5
+            value += (faces["U"][0][1] == Color.W and faces["B"][0][1] == self.color[i]) * 4
     
             # front face base cases (2 move away)
-            value += (faces["F"][0][1] == Color.W and faces["U"][2][1] == self.color[i]) * 5
+            value += (faces["F"][0][1] == Color.W and faces["U"][2][1] == self.color[i]) * 3
             value += ((faces["F"][1][0] == Color.W and faces["L"][1][2] == self.color[i])
                        or
-                      (faces["F"][1][2] == Color.W and faces["R"][1][0] == self.color[i])) * 4
-            value += (faces["B"][0][1] == Color.W and faces["U"][0][1] == self.color[i]) * 3
+                      (faces["F"][1][2] == Color.W and faces["R"][1][0] == self.color[i])) * 2
+            value += (faces["B"][0][1] == Color.W and faces["U"][0][1] == self.color[i]) * 2
     
             # case when piece is in the back
             value += ((faces["B"][1][2] == Color.W and faces["L"][1][0] == self.color[i])
                        or
-                      (faces["B"][1][0] == Color.W and faces["R"][1][2] == self.color[i])) * 2
+                      (faces["B"][1][0] == Color.W and faces["R"][1][2] == self.color[i]))
             value += ((faces["B"][1][2] == self.color[i] and faces["L"][1][0] == Color.W)
                        or
-                      (faces["B"][1][0] == self.color[i] and faces["R"][1][2] == Color.W)) * 2
+                      (faces["B"][1][0] == self.color[i] and faces["R"][1][2] == Color.W))
 
             # special cases when inserting
             if(faces["F"][0][1] == self.color[i] and faces["U"][2][1] == Color.W):
-                pass
+                value += (faces["F"][1][0] == Color.W and faces["L"][1][2] == self.color[(i + 1) % 4]) * 2
+                value += (faces["F"][1][2] == Color.W and faces["R"][1][0] == self.color[(i - 1)]) * 2
 
             if(faces["F"][1][0] == self.color[i] and faces["L"][1][2] == Color.W):
+                #value += (faces["F"][0][1] == Color.W and faces["U"][2][1] == self.color[(i - 1)]) * 4
+                #value += (faces["F"][2][1] == Color.W and faces["D"][0][1] == self.color[(i + 1) % 4]) * 4
                 pass
-                #value -= (faces["U"][2][1] == Color.W and faces["F"][0][1] != self.color[i - 1])
 
             if(faces["F"][1][2] == self.color[i] and faces["R"][1][0] == Color.W):
+                #value += (faces["F"][0][1] == Color.W and faces["U"][2][1] == self.color[(i - 1)]) * 4
+                #value += (faces["F"][2][1] == Color.W and faces["D"][0][1] == self.color[(i + 1) % 4]) * 4
                 pass
 
             # rotate cube
