@@ -5,8 +5,9 @@ from copy import deepcopy
 
 
 MOVES = ["U", "U'", "F", "F'", "R", "R'",
-         "D", "D'", "B", "B'", "L", "L'",
-         "U2", "F2", "R2", "D2", "B2", "L2"]
+         "D", "D'", "B", "B'", "L", "L'"]
+
+# "U2", "F2", "R2", "D2", "B2", "L2"
 
 
 _env = {
