@@ -1,7 +1,7 @@
+from typing import Callable
 from collections import deque
 from magiccube import Cube, CubeMove, Face
 from magiccube.solver.basic.basic_solver import BasicSolver
-
 
 
 def get_faces(cube: Cube) -> dict:
@@ -54,17 +54,13 @@ def is_last_cross_solved(cube: Cube) -> bool:
 
 def split_solution_steps(
     scrambled_state: str,
-    solution: list[CubeMove]
+    solution: list[CubeMove],
+    parsers: list
 ) -> dict:
     current = {
         "cube": Cube(state=scrambled_state),
         "solution": deque(solution)
     }
-
-    parsers = [
-        is_first_cross_solved,
-        is_f2l_solved
-    ]
 
     result = []
     for parser in parsers:
@@ -86,25 +82,39 @@ def split_solution_steps(
         #"orient_corners": parsers[5]
     }
 
-def generate_single_solution(
-    num_steps: int = 15
+def generate_data(
+    num_steps: int,
+    parsers: list[Callable]
 ) -> dict:
     cube = Cube()
     cube.rotate("x2")
 
-    scramble = cube.scramble(num_steps=num_steps)
+    cube.scramble(num_steps=num_steps)
     scrambled_state = cube.get()
 
     solver = BasicSolver(Cube(state=scrambled_state))
     solution = solver.solve()
 
-    steps = split_solution_steps(scrambled_state, solution)
-
+    steps = split_solution_steps(
+        scrambled_state=scrambled_state,
+        solution=solution,
+        parsers = parsers
+    )
+    
     return {
         "inital_state": scrambled_state,
         "solution": steps
     }
 
+def generate_scrambles():
+    pass
 
-solution = generate_single_solution()
-print(solution)
+
+if __name__ == "__main__":
+    parsers = [
+        is_first_cross_solved,
+        is_f2l_solved
+    ]
+
+    x = generate_data(num_steps=15, parsers=parsers)
+    print(x)
