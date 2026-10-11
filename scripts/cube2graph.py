@@ -1,97 +1,76 @@
 from magiccube import Cube
+from magiccube.cube_base import Face, Color
 import networkx as nx
 import matplotlib.pyplot as plt
 
-COLORS = {
-    'W': 1,
-    'Y': -1,
-    'O': -3,
-    'G': 2,
-    'R': 3,
-    'B': -2
-}
 
-def _connect_face(G: nx.Graph, face: list[str, int]):
-    for color, node_id in face:
-        G.add_node(node_id, x=[color])
-
-    # horizontal connections
+def _connect_face(G: nx.Graph, face_ids):
     for row in range(3):
         for col in range(2):
-            idx1 = row * 3 + col
-            idx2 = row * 3 + col + 1
-            G.add_edge(face[idx1][1], face[idx2][1])
-
-    # vertical connections
+            G.add_edge(face_ids[row * 3 + col], face_ids[row * 3 + col + 1])
     for col in range(3):
         for row in range(2):
-            idx1 = row * 3 + col
-            idx2 = (row + 1) * 3 + col
-            G.add_edge(face[idx1][1], face[idx2][1])
-
+            G.add_edge(face_ids[row * 3 + col], face_ids[(row + 1) * 3 + col])
     for idx in range(0, 3, 2):
-        G.add_edge(face[idx][1], face[4][1])
-        G.add_edge(face[idx + 6][1], face[4][1])
+        G.add_edge(face_ids[idx], face_ids[4])
+        G.add_edge(face_ids[idx + 6], face_ids[4])
 
-def cube2graph(cube: Cube) -> nx.Graph:
+
+def _build_topology_and_id_map(cube):
     G = nx.Graph()
+    faces_ids, faces_coords = {}, {}
+    next_id = 0
+    for face in Face:
+        face_indexes = cube._cube_face_indexes[face.value]
+        coords_flat = [c for line in face_indexes for c in line]
+        ids_flat = list(range(next_id, next_id + 9))
+        faces_ids[face.name] = ids_flat
+        faces_coords[face.name] = coords_flat
+        G.add_nodes_from(ids_flat)
+        next_id += 9
 
-    _faces = {}
-    _id = 0
-    # get all the faces
-    for face, colors in cube.get_all_faces().items():
-        face_with_ids = []
-        for sublist in colors:
-            for item in sublist:
-                face_with_ids.append((COLORS[item.name], _id))
-                _id += 1
-        _faces[face.name] = face_with_ids
+    for face_name, ids in faces_ids.items():
+        _connect_face(G, ids)
 
-    # create connections for each face
-    for _, face in _faces.items():
-        _connect_face(G, face)
-
-    # separate vertical and horizontal faces
-    _horizontal = [_faces['L'], _faces['F'], _faces['R'], _faces['B']]
-
-    # connect _horizontal faces
+    _horizontal = ['L', 'F', 'R', 'B']
     for i in range(len(_horizontal)):
-        lx = _horizontal[i]
-        rx = _horizontal[(i + 1) % (len(_horizontal))]
+        lx = faces_ids[_horizontal[i]]
+        rx = faces_ids[_horizontal[(i + 1) % 4]]
+        for j in range(0, 7, 3):
+            G.add_edge(lx[j + 2], rx[j])
 
-        for i in range(0, 7, 3):
-            G.add_edge(lx[i + 2][1], rx[i][1])
+    G.add_edge(faces_ids['F'][0], faces_ids['U'][6])
+    G.add_edge(faces_ids['F'][1], faces_ids['U'][7])
+    G.add_edge(faces_ids['F'][2], faces_ids['U'][8])
+    G.add_edge(faces_ids['F'][6], faces_ids['D'][0])
+    G.add_edge(faces_ids['F'][7], faces_ids['D'][1])
+    G.add_edge(faces_ids['F'][8], faces_ids['D'][2])
+    G.add_edge(faces_ids['R'][0], faces_ids['U'][8])
+    G.add_edge(faces_ids['R'][1], faces_ids['U'][5])
+    G.add_edge(faces_ids['R'][2], faces_ids['U'][2])
+    G.add_edge(faces_ids['R'][6], faces_ids['D'][2])
+    G.add_edge(faces_ids['R'][7], faces_ids['D'][5])
+    G.add_edge(faces_ids['R'][8], faces_ids['D'][8])
+    G.add_edge(faces_ids['B'][0], faces_ids['U'][2])
+    G.add_edge(faces_ids['B'][1], faces_ids['U'][1])
+    G.add_edge(faces_ids['B'][2], faces_ids['U'][0])
+    G.add_edge(faces_ids['B'][6], faces_ids['D'][8])
+    G.add_edge(faces_ids['B'][7], faces_ids['D'][7])
+    G.add_edge(faces_ids['B'][8], faces_ids['D'][6])
+    G.add_edge(faces_ids['L'][0], faces_ids['U'][0])
+    G.add_edge(faces_ids['L'][1], faces_ids['U'][3])
+    G.add_edge(faces_ids['L'][2], faces_ids['U'][6])
+    G.add_edge(faces_ids['L'][6], faces_ids['D'][6])
+    G.add_edge(faces_ids['L'][7], faces_ids['D'][3])
+    G.add_edge(faces_ids['L'][8], faces_ids['D'][0])
 
-    # connect _vertical faces with _horizontal faces
-    G.add_edge(_faces['F'][0][1], _faces['U'][6][1])
-    G.add_edge(_faces['F'][1][1], _faces['U'][7][1])
-    G.add_edge(_faces['F'][2][1], _faces['U'][8][1])
-    G.add_edge(_faces['F'][6][1], _faces['D'][0][1])
-    G.add_edge(_faces['F'][7][1], _faces['D'][1][1])
-    G.add_edge(_faces['F'][8][1], _faces['D'][2][1])
+    id_to_coord = {}
+    for face_name, ids in faces_ids.items():
+        for nid, coord in zip(ids, faces_coords[face_name]):
+            id_to_coord[nid] = coord
 
-    G.add_edge(_faces['R'][0][1], _faces['U'][8][1])
-    G.add_edge(_faces['R'][1][1], _faces['U'][5][1])
-    G.add_edge(_faces['R'][2][1], _faces['U'][2][1])
-    G.add_edge(_faces['R'][6][1], _faces['D'][2][1])
-    G.add_edge(_faces['R'][7][1], _faces['D'][5][1])
-    G.add_edge(_faces['R'][8][1], _faces['D'][8][1])
+    return G, id_to_coord
 
-    G.add_edge(_faces['B'][0][1], _faces['U'][2][1])
-    G.add_edge(_faces['B'][1][1], _faces['U'][1][1])
-    G.add_edge(_faces['B'][2][1], _faces['U'][0][1])
-    G.add_edge(_faces['B'][6][1], _faces['D'][8][1])
-    G.add_edge(_faces['B'][7][1], _faces['D'][7][1])
-    G.add_edge(_faces['B'][8][1], _faces['D'][6][1])
-
-    G.add_edge(_faces['L'][0][1], _faces['U'][0][1])
-    G.add_edge(_faces['L'][1][1], _faces['U'][3][1])
-    G.add_edge(_faces['L'][2][1], _faces['U'][6][1])
-    G.add_edge(_faces['L'][6][1], _faces['D'][6][1])
-    G.add_edge(_faces['L'][7][1], _faces['D'][3][1])
-    G.add_edge(_faces['L'][8][1], _faces['D'][0][1])
-
-    return G
 
 def visualize_graph(G: nx.Graph):
     pos = nx.spring_layout(G, dim=3, k=0.3, iterations=100)
@@ -146,5 +125,5 @@ def visualize_graph(G: nx.Graph):
 
 if __name__ == "__main__":
     cube = Cube()
-    G = cube2graph(cube)
+    G, _ = _build_topology_and_id_map(cube)
     visualize_graph(G)
