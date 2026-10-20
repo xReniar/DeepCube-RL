@@ -1,8 +1,10 @@
 import conditions
+from scrambler import generate_scrambles
 from typing import Callable
 from collections import deque
 from magiccube import Cube, CubeMove
 from magiccube.solver.basic.basic_solver import BasicSolver
+from multiprocessing import Pool, cpu_count
 import json
 
 
@@ -37,13 +39,12 @@ def split_solution_steps(
     }
 
 def generate_data(
-    num_steps: int,
+    scramble: str,
     stages: list[Callable]
 ) -> dict:
     cube = Cube()
     cube.rotate("x2")
-
-    cube.scramble(num_steps=num_steps)
+    cube.rotate(scramble)
     scrambled_state = cube.get()
 
     solver = BasicSolver(Cube(state=scrambled_state))
@@ -58,9 +59,6 @@ def generate_data(
         )
     }
 
-def generate_scrambles():
-    pass
-
 
 if __name__ == "__main__":
     stages = [
@@ -68,5 +66,15 @@ if __name__ == "__main__":
         conditions.is_f2l_solved
     ]
 
-    x = generate_data(num_steps=15, stages=stages)
-    print(json.dumps(x, indent=4))
+    dataset = []
+    scrambles = generate_scrambles()
+
+    print("Generating solution for each scramble...")
+    with Pool(cpu_count()) as pool:
+        dataset += pool.starmap(
+            generate_data,
+            list(map(lambda x: (x, stages), scrambles))
+        )
+
+    print(len(dataset))
+    print(dataset[0])
