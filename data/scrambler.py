@@ -37,7 +37,7 @@ def _exhaustive(max_depth: int, seen: set) -> list[tuple[int, str]]:
                     continue
                 seen.add(k)
                 nxt.append((new_state, path + [m]))
-        rows.extend((depth, " ".join(p)) for _, p in nxt)
+        rows.extend(" ".join(p) for _, p in nxt)
         frontier = nxt
         print(f"[BFS] depth {depth}: {len(nxt)} scrambles")
     return rows
@@ -80,9 +80,9 @@ def _sample_length(pool, length, target, seen, n_workers, batch=5000):
 
 
 def generate_scrambles(
-    max_length: int = 15,
+    max_length: int = 5,
     exhaustive_depth: int = 5,
-    samples_per_length: int = 100_000,
+    samples_per_length: int = 10000 ,
 ) -> list[str]:
     seen = {_key(Cube(3).get())}
     rows = _exhaustive(exhaustive_depth, seen)
