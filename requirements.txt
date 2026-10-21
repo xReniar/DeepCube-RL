@@ -1,4 +1,6 @@
 magiccube==1.2.0
+einops
+pydantic
 wheel
 torch
 torch-geometric
