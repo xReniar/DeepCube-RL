@@ -29,14 +29,10 @@ def split_solution_steps(
     
         result.append(" ".join(applied))
 
-    return {
-        "w_cross": result[0],
-        "f2l_steps": result[1],
-        #"last_cross": parsers[2],
-        #"permute_edges": parsers[3],
-        #"permute_corners": parsers[4],
-        #"orient_corners": parsers[5]
-    }
+    return dict(zip(
+        list(map(lambda func: func.__name__, stages)),
+        result
+    ))
 
 def generate_data(
     scramble: str,
@@ -51,7 +47,7 @@ def generate_data(
     solution = solver.solve()
     
     return {
-        "inital_state": scrambled_state,
+        "initial_state": scrambled_state,
         "solution": split_solution_steps(
             scrambled_state=scrambled_state,
             solution=solution,
@@ -62,8 +58,10 @@ def generate_data(
 
 if __name__ == "__main__":
     stages = [
-        conditions.is_first_cross_solved,
-        conditions.is_f2l_solved
+        conditions.w_cross,
+        conditions.f2l,
+        conditions.last_cross,
+        conditions.permute_edges
     ]
 
     dataset = []
@@ -76,5 +74,10 @@ if __name__ == "__main__":
             list(map(lambda x: (x, stages), scrambles))
         )
 
-    print(len(dataset))
-    print(dataset[0])
+    print("Saving dataset...")
+    with open("dataset.txt", "w") as f:
+        dataset = list(map(lambda x: f"{json.dumps(x)}\n", dataset))
+        f.writelines(dataset)
+
+        #for data in dataset:
+        #    f.write(f"{json.dumps(data)}\n")
