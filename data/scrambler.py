@@ -9,7 +9,6 @@ def _inverse(m: str) -> str:
     return m[0] if m.endswith("'") else m + "'"
 
 def _allowed(seq: list[str], m: str) -> bool:
-    """Evita mosse ovviamente ridondanti (R R' e R R R)."""
     if not seq:
         return True
     if m == _inverse(seq[-1]):
@@ -19,7 +18,6 @@ def _allowed(seq: list[str], m: str) -> bool:
     return True
 
 def _key(state: str) -> bytes:
-    """Hash a 16 byte dello stato, per risparmiare memoria nel set."""
     return hashlib.blake2b(state.encode(), digest_size=16).digest()
 
 def _exhaustive(max_depth: int, seen: set) -> list[tuple[int, str]]:
