@@ -59,9 +59,11 @@ def generate_data(
 if __name__ == "__main__":
     stages = [
         conditions.w_cross,
-        conditions.f2l,
+        conditions.first_layer,
+        conditions.second_layer,
         conditions.last_cross,
-        conditions.permute_edges
+        conditions.permute_edges,
+        conditions.permute_corners
     ]
 
     dataset = []
