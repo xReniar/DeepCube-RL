@@ -3,7 +3,3 @@ einops
 pydantic
 wheel
 torch
-torch-geometric
-torch-scatter
-matplotlib
-PyYAML
