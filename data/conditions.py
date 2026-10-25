@@ -23,8 +23,8 @@ def w_cross(cube: Cube) -> bool:
         f["L"][2][1] == f["L"][1][1] and f["D"][1][0] == d_center,
     ])
 
-# function that check if the f2l-step is done
-def f2l(cube: Cube) -> bool:
+# function that check if the first layer is done
+def first_layer(cube: Cube) -> bool:
     f = get_faces(cube)
     d_center = f["D"][1][1]
     f_center = f["F"][1][1]
@@ -32,21 +32,26 @@ def f2l(cube: Cube) -> bool:
     b_center = f["B"][1][1]
     l_center = f["L"][1][1]
 
-    first_layer = all([
+    return all([
         f["F"][2][2] == f_center and f["D"][0][2] == d_center,
         f["R"][2][2] == r_center and f["D"][2][2] == d_center,
         f["B"][2][2] == b_center and f["D"][2][0] == d_center,
         f["L"][2][2] == l_center and f["D"][0][0] == d_center,
     ])
 
-    second_layer = all([
+def second_layer(cube: Cube) -> bool:
+    f = get_faces(cube)
+    f_center = f["F"][1][1]
+    r_center = f["R"][1][1]
+    b_center = f["B"][1][1]
+    l_center = f["L"][1][1]
+
+    return all([
         f["F"][1][2] == f_center and f["R"][1][0] == r_center,
         f["R"][1][2] == r_center and f["B"][1][0] == b_center,
         f["B"][1][2] == b_center and f["L"][1][0] == l_center,
         f["L"][1][2] == l_center and f["F"][1][0] == f_center,
     ])
-
-    return (first_layer and second_layer)
 
 # function that check if the last-cross-step is done
 def last_cross(cube: Cube) -> bool:
@@ -74,3 +79,25 @@ def permute_edges(cube: Cube) -> bool:
         f["L"][0][1] == l_center,
         last_cross(cube)
     ])
+
+def permute_corners(cube: Cube) -> bool:
+    f = get_faces(cube)
+    pairs = [("F", "R", 2, 2), ("R", "B", 0, 2), ("B", "L", 0, 0), ("L", "F", 2, 0)]
+    status = []
+
+    for l, r, index_a, index_b in pairs:
+        colors = [
+            f[l][0][2],
+            f[r][0][0],
+            f["U"][index_a][index_b]
+        ]
+        labels = [
+            f[l][1][1],
+            f[r][1][1],
+            f["U"][1][1]
+        ]
+
+        status.append(all(color in colors for color in labels))
+
+    return all(status)
+        
