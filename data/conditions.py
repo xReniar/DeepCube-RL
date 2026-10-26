@@ -12,7 +12,7 @@ def get_faces(cube: Cube) -> dict:
     }
 
 # function that check if the first-cross-step is done
-def w_cross(cube: Cube) -> bool:
+def d_cross(cube: Cube) -> bool:
     f = get_faces(cube)
     d_center = f["D"][1][1]
 
@@ -54,7 +54,7 @@ def second_layer(cube: Cube) -> bool:
     ])
 
 # function that check if the last-cross-step is done
-def last_cross(cube: Cube) -> bool:
+def u_cross(cube: Cube) -> bool:
     f = get_faces(cube)
     u_center = f["U"][1][1]
 
@@ -77,7 +77,7 @@ def permute_edges(cube: Cube) -> bool:
         f["R"][0][1] == r_center,
         f["B"][0][1] == b_center,
         f["L"][0][1] == l_center,
-        last_cross(cube)
+        u_cross(cube)
     ])
 
 def permute_corners(cube: Cube) -> bool:
