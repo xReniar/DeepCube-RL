@@ -9,9 +9,11 @@ HEAD_DIM = MODEL_DIM // MODEL_HEADS
 ROPE_THETA = 10_000.0
 CONTEXT = 128
 STATE_WIDTH = 32
-INPUT_VOCAB = 19
 MODEL_LAYERS = 12
-MOVES = 18
+MOVES = 12
+STAGE_TOKENS = 12
+ACTIONS = MOVES + STAGE_TOKENS
+INPUT_VOCAB = ACTIONS + 1
 DEVICE = ("cuda" if torch.cuda.is_available() else
           "mps" if torch.backends.mps.is_available() else
           "cpu")
@@ -143,7 +145,7 @@ class DirectStatePolicy(nn.Module):
             TransformerBlock() for _ in range(MODEL_LAYERS)
         )
         self.norm = nn.LayerNorm(MODEL_DIM)
-        self.policy = nn.Linear(MODEL_DIM, MOVES)
+        self.policy = nn.Linear(MODEL_DIM, ACTIONS)
         self.apply(self._initialize)
         nn.init.normal_(self.state_encoder.position, std=0.02)
         for module in self.modules():
