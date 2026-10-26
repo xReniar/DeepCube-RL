@@ -5,6 +5,7 @@ from collections import deque
 from magiccube import Cube, CubeMove
 from magiccube.solver.basic.basic_solver import BasicSolver
 from multiprocessing import Pool, cpu_count
+from parser import parser
 import json
 
 
@@ -26,7 +27,13 @@ def split_solution_steps(
             move = current["solution"].popleft()
             current["cube"].rotate([move])
             applied.append(str(move.type.value) + ("'" if move.is_reversed else ""))
-    
+
+        '''
+        if stage_check.__name__ == "d_cross":
+            m_applied = parser(Cube(state=current["cube"].get()), applied, stage_check.__name__)
+            print(" ".join(m_applied))
+        '''
+
         result.append(" ".join(applied))
 
     return dict(zip(
@@ -58,10 +65,10 @@ def generate_data(
 
 if __name__ == "__main__":
     stages = [
-        conditions.w_cross,
+        conditions.d_cross,
         conditions.first_layer,
         conditions.second_layer,
-        conditions.last_cross,
+        conditions.u_cross,
         conditions.permute_edges,
         conditions.permute_corners
     ]
