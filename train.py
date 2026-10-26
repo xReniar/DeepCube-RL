@@ -41,7 +41,6 @@ STAGE_END = {name: MOVES + 2 * index + 1 for index, name in enumerate(STAGES)}
 TOKEN_NAMES = MOVE_NAMES + [
     f"<|{name}_{kind}|>" for name in STAGES for kind in ("start", "end")
 ]
-print(TOKEN_NAMES)
 BOS = ACTIONS
 
 EPOCHS = 100
